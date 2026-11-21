@@ -1,0 +1,25 @@
+{
+  "$schema": "https://opencode.ai/config.json",
+
+  // .pio/ holds ~377 MB of build output + vendored library sources, and every
+  // `pio run` rewrites a large chunk of .pio/build/. Keep it out of the file
+  // watcher. *.elf/*.map are technically redundant with .pio/**; *.bin also
+  // covers the 16 MiB factory flash dump in backups/.
+  "watcher": {
+    "ignore": [".pio/**", "*.bin", "*.elf", "*.map"]
+  },
+
+  "permissions": [
+    // Build artifacts are pure context pollution. Rare deep-debug reads (e.g.
+    // the linker .map on a region-overflow error) still work over the shell,
+    // which the read action does not gate.
+    { "action": "read", "resource": ".pio/build/**", "effect": "deny" },
+    // firmware.bin + backups/wt32-sc01-plus-original-flash.bin.
+    { "action": "read", "resource": "*.bin", "effect": "deny" },
+    // AGENTS.md hard rule #1 ("never edit anything under .pio/"), enforced at
+    // the tool layer. `pio run` still works: builds write via the shell, and
+    // the edit action only gates the edit/write/patch tools.
+    // Vendored sources under .pio/libdeps/ stay readable on purpose.
+    { "action": "edit", "resource": ".pio/**", "effect": "deny" }
+  ]
+}
