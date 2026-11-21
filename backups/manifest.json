@@ -1,0 +1,11 @@
+{
+  "file": "wt32-sc01-plus-original-flash.bin",
+  "size_bytes": 16777216,
+  "sha256": "3772c1bf7d6d2b713973212ddf5c671e3c844a13a8464f675343d9aed4e7f044",
+  "captured_utc": "2026-11-20",
+  "method": "esptool read-flash 0x00000000 0x01000000",
+  "chip": "ESP32-S3 revision v0.2",
+  "flash": "16 MiB",
+  "psram": "2 MiB",
+  "port": "/dev/ttyACM0"
+}
