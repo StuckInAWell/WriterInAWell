@@ -146,7 +146,7 @@ pio device monitor --port /dev/ttyACM0 -b 115200 # serial console (native USB CD
    any restore.
 6. Preserve font licenses: Elms Sans and Space Mono are SIL OFL 1.1 (keep the
    `*-OFL.txt` files); LovyanGFX/LVGL/NimBLE-Arduino are MIT/BSD/Apache-2.0.
-   The project source itself has no LICENSE file yet.
+   The project source itself is MIT-licensed — see `LICENSE`.
 
 ## Repo state notes
 
