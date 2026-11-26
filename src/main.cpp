@@ -26,8 +26,11 @@ constexpr int SCREEN_H = 320;
 constexpr int SD_CS = 41;
 constexpr size_t MAX_DOCUMENT_PSRAM = 512 * 1024;
 constexpr size_t MAX_DOCUMENT_FALLBACK = 32 * 1024;
-// Editor text sizes, smallest first. The 14 px cut is the default and the
-// middle of the range; 10/12 are smaller picks and 16 the one larger cut.
+// Editor text sizes, smallest first. Terminess ships native bitmap strikes at
+// 12/14/16/18/…; odd sizes render smaller, mismatched ink (13 px produced an
+// 8 px-tall digit while 12 px produced a 12 px one), so the ladder stays on
+// even cuts. 10 px reuses the smallest available strike as the dense option;
+// 14 px is the default and the middle of the range.
 constexpr int EDITOR_FONT_SIZE_COUNT = 4;
 constexpr uint8_t EDITOR_FONT_SIZE_DEFAULT = 2;
 constexpr uint16_t EDITOR_FONT_PIXELS[EDITOR_FONT_SIZE_COUNT] = {10, 12, 14, 16};
@@ -281,7 +284,7 @@ bool cursorBlockShown = false;
 // cell so the character underneath stays readable. The glyph state below
 // describes the character currently lent to the solid phase; end of line (or
 // a hard tab) has none, and the solid phase is then a plain block.
-constexpr uint32_t CURSOR_BLUE = 0xC0E7FB;
+constexpr uint32_t CURSOR_BLUE = 0x89DCEB;
 bool cursorSolidPhase = true;
 bool cursorGlyphHasText = false;
 int cursorGlyphW = -1;
@@ -569,8 +572,8 @@ constexpr const char *SNAPSHOT_DIR = "/WriterInAWell/.wiaw-versions";
 uint8_t editorFontSizeIndex = EDITOR_FONT_SIZE_DEFAULT;
 // Live editor geometry, refreshed from the selected font in
 // refreshEditorMetrics(). Fixed arrays use MAX_VISIBLE_LINES instead.
-int editorLineHeight = 17;
-int editorVisibleLines = 13;
+int editorLineHeight = 14;
+int editorVisibleLines = 15;
 // Language of the current buffer, and the default for the next new one.
 DocLang editorFileType = DocLang::Markdown;
 // Settings is a short section list plus popup panels (the File Type picker
@@ -634,13 +637,13 @@ constexpr size_t TYPING_TYPED_CAP = TYPING_MAX_WORD + TYPING_EXTRA_CHARS;
 constexpr size_t TYPING_WORD_STORE = TYPING_MAX_WORD + 4;
 // Long is resolved at pick time: the paragraph is generated first, then
 // words are added to the measure string until the next one would need a
-// ninth band. The wrapped text itself is capped near 300 characters, so 200
+// tenth band. The wrapped text itself is capped near 300 characters, so 200
 // slots cover every complexity/symbol combination.
 constexpr size_t TYPING_MAX_WORDS = 200;
 constexpr size_t TYPING_TEXT_CAP = 2048;
 // Word area geometry, shared by the layout and the Long fit check: the words
 // start under the stats bar and run to the panel's bottom edge, which leaves
-// eight 23 px Space Mono bands.
+// nine 20 px Terminess bands.
 constexpr int TYPING_PANEL_H = 240;
 constexpr int TYPING_WORD_AREA_W = 452;
 constexpr int TYPING_WORDS_Y = 44;
@@ -653,15 +656,15 @@ constexpr int TYPING_STAT_LIVE_CELL_H = TYPING_STAT_LIVE_H - 2;
 constexpr int TYPING_STAT_SUMMARY_H = 40;
 // Two rows inside 40 px minus the 1 px frame and 1 px row gap.
 constexpr int TYPING_STAT_SUMMARY_CELL_H = (TYPING_STAT_SUMMARY_H - 3) / 2;
-constexpr uint32_t TYPING_STAT_BG_BLUE = 0x13222C;
-constexpr uint32_t TYPING_STAT_BG_GREEN = 0x13251E;
-constexpr uint32_t TYPING_STAT_BG_SLATE = 0x161E24;
-constexpr uint32_t TYPING_STAT_BG_AMBER = 0x251F15;
-constexpr uint32_t TYPING_STAT_BLUE = 0x78C8F4;
-constexpr uint32_t TYPING_STAT_GREEN = 0x8DE6B3;
-constexpr uint32_t TYPING_STAT_SLATE = 0xE8EEF2;
-constexpr uint32_t TYPING_STAT_AMBER = 0xE0B15C;
-constexpr uint32_t TYPING_STAT_CAPTION = 0x71858F;
+constexpr uint32_t TYPING_STAT_BG_BLUE = 0x1A2433;
+constexpr uint32_t TYPING_STAT_BG_GREEN = 0x1B2821;
+constexpr uint32_t TYPING_STAT_BG_SLATE = 0x1E1E2E;
+constexpr uint32_t TYPING_STAT_BG_AMBER = 0x2A241A;
+constexpr uint32_t TYPING_STAT_BLUE = 0x89B4FA;
+constexpr uint32_t TYPING_STAT_GREEN = 0x96A57E;
+constexpr uint32_t TYPING_STAT_SLATE = 0xCDD6F4;
+constexpr uint32_t TYPING_STAT_AMBER = 0xFAB387;
+constexpr uint32_t TYPING_STAT_CAPTION = 0x9399B2;
 // Live wpm/elapsed repaint cadence; unchanged cells are not re-set, so a tick
 // only touches the numbers that moved.
 constexpr uint32_t TYPING_LIVE_TICK_MS = 250;
@@ -1034,11 +1037,11 @@ lv_obj_t *makeHintKeycap(lv_obj_t *parent, const char *letter) {
   lv_obj_t *key = lv_label_create(parent);
   lv_label_set_text(key, letter);
   setUiFont(key);
-  lv_obj_set_style_bg_color(key, lv_color_hex(0x2C363D), 0);
+  lv_obj_set_style_bg_color(key, lv_color_hex(0x313244), 0);
   lv_obj_set_style_bg_opa(key, LV_OPA_COVER, 0);
   lv_obj_set_style_border_width(key, 0, 0);
   lv_obj_set_style_radius(key, 2, 0);
-  lv_obj_set_style_text_color(key, lv_color_hex(0xC9D4DB), 0);
+  lv_obj_set_style_text_color(key, lv_color_hex(0xCDD6F4), 0);
   lv_obj_set_style_pad_left(key, 4, 0);
   lv_obj_set_style_pad_right(key, 4, 0);
   lv_obj_set_style_pad_top(key, 1, 0);
@@ -1055,9 +1058,9 @@ lv_obj_t *makeHintKeycap(lv_obj_t *parent, const char *letter) {
 // touches the status-panel border above and the strip edge below.
 lv_obj_t *makeHintKeycapMenu(lv_obj_t *parent, const char *letter) {
   lv_obj_t *key = makeHintKeycap(parent, letter);
-  lv_obj_set_style_text_color(key, lv_color_hex(0x78C8F4), 0);
+  lv_obj_set_style_text_color(key, lv_color_hex(0x89B4FA), 0);
   lv_obj_set_style_border_width(key, 1, 0);
-  lv_obj_set_style_border_color(key, lv_color_hex(0x78C8F4), 0);
+  lv_obj_set_style_border_color(key, lv_color_hex(0x89B4FA), 0);
   lv_obj_set_style_pad_top(key, 0, 0);
   lv_obj_set_style_pad_bottom(key, 0, 0);
   return key;
@@ -1069,7 +1072,7 @@ lv_obj_t *makeHintWord(lv_obj_t *parent, const char *text) {
   lv_obj_t *word = lv_label_create(parent);
   lv_label_set_text(word, text);
   setUiFont(word);
-  lv_obj_set_style_text_color(word, lv_color_hex(0x71858F), 0);
+  lv_obj_set_style_text_color(word, lv_color_hex(0x7F849C), 0);
   return word;
 }
 
@@ -1136,14 +1139,15 @@ void setTitleFont(lv_obj_t *obj) {
   lv_obj_set_style_text_font(obj, &elms_bold_16, 0);
 }
 
-// The editor text font: anti-aliased Space Mono, or the crisp 1-bpp variant
-// when smoothing is off (thin stems stay fully black). Every size has both
+// The editor text font: anti-aliased Terminess, or the crisp 1-bpp variant
+// when smoothing is off. Terminess is a pixel font: its line box equals the
+// glyph cell, so both variants share each size's metrics. Every size has both
 // variants, so the smoothing toggle keeps working at all four steps.
 const lv_font_t *const EDITOR_FONTS_SMOOTH[EDITOR_FONT_SIZE_COUNT] = {
-    &space_mono_10, &space_mono_12, &space_mono_14, &space_mono_16};
+    &terminess_10, &terminess_12, &terminess_14, &terminess_16};
 const lv_font_t *const EDITOR_FONTS_CRISP[EDITOR_FONT_SIZE_COUNT] = {
-    &space_mono_10_cr, &space_mono_12_cr, &space_mono_14_cr,
-    &space_mono_16_cr};
+    &terminess_10_cr, &terminess_12_cr, &terminess_14_cr,
+    &terminess_16_cr};
 
 const lv_font_t *editorFont() {
   return editorSmoothText ? EDITOR_FONTS_SMOOTH[editorFontSizeIndex]
@@ -1152,20 +1156,21 @@ const lv_font_t *editorFont() {
 
 // Monospace glyph advance width, re-measured whenever the font size changes;
 // it drives the caret cell, wrap width and horizontal scroll window.
-uint16_t editorGlyphWidth = 8;
+uint16_t editorGlyphWidth = 7;
 
 // Zen mode hides the header, status bar and hint strip and grows the page to
 // the full screen. These helpers keep the canvas geometry and the text origin
 // in one place. Normal mode: a 36 px header at y 4 (ends 40), then the canvas
-// at 41 so its bottom edge stays at 270 and the 13-row text area of the old
-// 30 px header is preserved (229 - 2 borders - 6 top = 221 = 13 × 17 px).
+// at 41 so its bottom edge stays at 270 and the 221 px text area is preserved
+// (229 - 2 borders - 6 top). At the 14 px Terminess default that is 15 rows
+// of 14 px; the 10/12 px cuts fit 18 rows, the 16 px cut 13.
 int editorCanvasY() { return editorZenMode ? 4 : 41; }
 int editorCanvasH() { return editorZenMode ? SCREEN_H - 8 : EDITOR_CANVAS_H; }
 int editorTextTop() { return editorZenMode ? 6 : EDITOR_TEXT_TOP; }
 
 // Recompute the editor's live geometry from the selected font. The canvas is
 // 231 px tall with a 1 px border and the first band starts at y=6, so the
-// stack has 223 px to fill; Zen uses the full height instead. Called at boot,
+// stack has 221 px to fill; Zen uses the full height instead. Called at boot,
 // before every screen build and whenever the size changes.
 void refreshEditorMetrics() {
   const lv_font_t *font = editorFont();
@@ -1176,7 +1181,7 @@ void refreshEditorMetrics() {
   if (editorVisibleLines > MAX_VISIBLE_LINES)
     editorVisibleLines = MAX_VISIBLE_LINES;
   editorGlyphWidth = lv_font_get_glyph_width(font, '0', 0);
-  if (editorGlyphWidth == 0) editorGlyphWidth = 9;
+  if (editorGlyphWidth == 0) editorGlyphWidth = 7;
 }
 
 size_t lineStart(size_t offset) {
@@ -2172,8 +2177,8 @@ String safeDocumentName(String name) {
 void handleTransferHome() {
   // Self-contained page: no external fonts, scripts, or images. The inline SVG
   // sprite uses currentColor so every glyph follows the device palette. The
-  // palette and 1 px borders mirror the on-device UI (#10171C screen, #141E24
-  // header, #18272D controls, #2C424B/#315360 borders, #8DE6B3 accent).
+  // palette and 1 px borders mirror the on-device UI (#11111B screen, #181825
+  // header, #1E1E2E controls, #313244/#45475A borders, #96A57E accent).
   static const char page[] = R"WIAW(<!doctype html>
 <html lang="en">
 <head>
@@ -2182,11 +2187,11 @@ void handleTransferHome() {
 <title>WriterInAWell · Documents</title>
 <style>
   :root{
-    --bg:#10171C; --panel:#141E24; --card:#18272D;
-    --line:#2C424B; --line2:#315360;
-    --text:#E8EEF2; --text2:#D4DFE5; --muted:#71858F;
-    --green:#8DE6B3; --green2:#4CCB8B; --blue:#78C8F4;
-    --yellow:#FFD866; --red:#E06C75;
+    --bg:#11111B; --panel:#181825; --card:#1E1E2E;
+    --line:#313244; --line2:#45475A;
+    --text:#CDD6F4; --text2:#BAC2DE; --muted:#9399B2;
+    --green:#96A57E; --green2:#96A57E; --blue:#89B4FA;
+    --yellow:#F9E2AF; --red:#F38BA8;
     --sans:system-ui,-apple-system,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;
     --mono:ui-monospace,"SFMono-Regular",Menlo,Consolas,"Liberation Mono",monospace;
   }
@@ -2204,7 +2209,7 @@ void handleTransferHome() {
   .brand p{margin:2px 0 0;color:var(--muted);font-size:12px}
   .spacer{flex:1}
   .pill{display:inline-flex;align-items:center;gap:7px;border:1px solid var(--line2);border-radius:999px;padding:5px 10px;color:var(--text2);font:12px var(--mono);background:var(--card);white-space:nowrap}
-  .dot{width:7px;height:7px;border-radius:50%;background:var(--green2);box-shadow:0 0 0 3px rgba(76,203,139,.15)}
+  .dot{width:7px;height:7px;border-radius:50%;background:var(--green2);box-shadow:0 0 0 3px rgba(150,165,126,.18)}
   .panel{background:var(--bg);border:1px solid var(--line);border-radius:3px;margin-top:12px;overflow:hidden}
   .toolbar{display:flex;align-items:center;gap:10px;padding:10px 12px;border-bottom:1px solid var(--line);flex-wrap:wrap}
   .crumb{display:flex;align-items:center;gap:6px;color:var(--muted);font:12px var(--mono);min-width:0}
@@ -2212,10 +2217,10 @@ void handleTransferHome() {
   .crumb .ficon{color:var(--yellow)}
   .grow{flex:1}
   .btn{display:inline-flex;align-items:center;gap:7px;background:var(--card);border:1px solid var(--line2);border-radius:3px;color:var(--text);padding:7px 11px;font:600 12px var(--sans);cursor:pointer;text-decoration:none;transition:background .12s,border-color .12s,color .12s;line-height:1}
-  .btn:hover{background:#1A2D32;border-color:var(--green)}
+  .btn:hover{background:#313244;border-color:var(--green)}
   .btn:focus-visible{outline:2px solid var(--green);outline-offset:2px}
   .btn.primary{color:var(--green);border-color:var(--green)}
-  .btn.primary:hover{background:rgba(141,230,179,.08)}
+  .btn.primary:hover{background:rgba(150,165,126,.10)}
   .btn:disabled{opacity:.55;cursor:default}
   .btn svg{width:15px;height:15px}
   .stats{display:flex;align-items:center;gap:18px;flex-wrap:wrap;padding:9px 12px;color:var(--muted);font:12px var(--mono)}
@@ -2226,8 +2231,8 @@ void handleTransferHome() {
   .lhead,.row{display:grid;grid-template-columns:minmax(0,1fr) 92px 180px 108px;align-items:center;gap:12px}
   .lhead{padding:9px 12px;border-bottom:1px solid var(--line);color:var(--muted);font:600 11px var(--sans);letter-spacing:.08em;text-transform:uppercase}
   .lhead .num{text-align:right}
-  .row{padding:9px 12px;border-bottom:1px solid rgba(44,66,75,.6);font:13px var(--mono)}
-  .row:hover{background:rgba(26,45,50,.55)}
+  .row{padding:9px 12px;border-bottom:1px solid rgba(69,71,90,.6);font:13px var(--mono)}
+  .row:hover{background:rgba(49,50,68,.55)}
   .row .meta{display:contents}
   .row .size{text-align:right;color:var(--text2);white-space:nowrap}
   .row .date{color:var(--text2);white-space:nowrap}
@@ -2237,11 +2242,11 @@ void handleTransferHome() {
   .name .lbl{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:var(--text)}
   .name .ext{color:var(--green);font-size:11px;flex:0 0 auto}
   .dl{display:inline-flex;align-items:center;gap:6px;color:var(--green);text-decoration:none;border:1px solid var(--line2);border-radius:3px;padding:5px 9px;font:600 11px var(--sans);white-space:nowrap}
-  .dl:hover{border-color:var(--green);background:rgba(141,230,179,.08)}
+  .dl:hover{border-color:var(--green);background:rgba(150,165,126,.10)}
   .dl svg{width:13px;height:13px}
   .empty{padding:46px 16px;text-align:center;color:var(--muted)}
   .empty .big{color:var(--text2);font-size:15px;margin-bottom:4px}
-  .upload{display:flex;align-items:center;gap:10px;flex-wrap:wrap;padding:12px;border-top:1px solid var(--line);background:rgba(20,30,36,.45)}
+  .upload{display:flex;align-items:center;gap:10px;flex-wrap:wrap;padding:12px;border-top:1px solid var(--line);background:rgba(24,24,37,.55)}
   .filepick{position:relative;overflow:hidden}
   .filepick input{position:absolute;inset:0;opacity:0;cursor:pointer}
   .filename{color:var(--muted);font:12px var(--mono);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:100%;min-width:0}
@@ -2686,28 +2691,28 @@ void stopTransfer() {
   uiNeedsRender = true;
 }
 
-// Warm Markdown palette: oranges, purples, yellows, peach.
-constexpr const char *C_HEADING = "FFA94D";  // orange
-constexpr const char *C_BOLD    = "C792EA";  // purple
-constexpr const char *C_ITALIC  = "FFD8A8";  // peach
-constexpr const char *C_BULLET  = "FFD866";  // yellow
-constexpr const char *C_CODE    = "F6C177";  // soft orange-peach (inline code)
-constexpr const char *C_QUOTE   = "C792EA";  // purple (blockquote)
-constexpr const char *C_TEXT    = "D4DFE5";  // default prose
+// Mocha palette: peach, mauve, pink and yellow.
+constexpr const char *C_HEADING = "FAB387";  // peach
+constexpr const char *C_BOLD    = "CBA6F7";  // mauve
+constexpr const char *C_ITALIC  = "F5C2E7";  // pink
+constexpr const char *C_BULLET  = "F9E2AF";  // yellow
+constexpr const char *C_CODE    = "F9E2AF";  // warm cream (inline code)
+constexpr const char *C_QUOTE   = "CBA6F7";  // mauve (blockquote)
+constexpr const char *C_TEXT    = "CDD6F4";  // default prose
 
 // Heading ink by level, so "#", "##" and "###" read as a hierarchy instead of
-// seven identical orange lines.
-constexpr const char *C_H1 = "FFA94D";  // orange
-constexpr const char *C_H2 = "A8E6CF";  // mint
-constexpr const char *C_H3 = "FFD8A8";  // peach
-constexpr const char *C_H4 = "78C8F4";  // link blue (### and deeper)
+// seven identical peach lines.
+constexpr const char *C_H1 = "FAB387";  // peach
+constexpr const char *C_H2 = "B5C39D";  // light moss
+constexpr const char *C_H3 = "F5C2E7";  // pink
+constexpr const char *C_H4 = "89B4FA";  // link blue (### and deeper)
 
 // --- Syntax highlighting -----------------------------------------------------
 //
 // A visible band becomes one LVGL recolor string ("#RRGGBB text#") handed
 // straight to that band's label, so a render costs work proportional to the 13
-// bands on screen rather than to the document. All of it runs in fixed scratch
-// — one shared 1 KiB buffer plus one block-state byte — so no keystroke
+// visible bands rather than to the document. All of it runs in fixed scratch
+// — one shared 1.25 KiB buffer plus one block-state byte — so no keystroke
 // touches the heap.
 //
 // Recolor grammar (LVGL 8): "#RRGGBB text#" paints a run, "##" prints one
@@ -2715,17 +2720,17 @@ constexpr const char *C_H4 = "78C8F4";  // link blue (### and deeper)
 // restarts at every line. A band is one line by construction, so Markup always
 // closes its run before the string is handed over.
 
-// Token ink: the chrome's link blue, mint and orange, plus purple for control
-// flow and a dim steel for comments and punctuation.
-constexpr const char *SX_COMMENT = "6C8290";
-constexpr const char *SX_TEXT    = "D4DFE5";
-constexpr const char *SX_STRING  = "A8E6CF";
-constexpr const char *SX_KEYWORD = "C792EA";
-constexpr const char *SX_NUMBER  = "F6C177";
-constexpr const char *SX_TYPE    = "8DE6B3";
-constexpr const char *SX_ATTR    = "78C8F4";
-constexpr const char *SX_PUNCT   = "7F97A3";
-constexpr const char *SX_PREPROC = "FFA94D";
+// Token ink: the chrome's link blue, sage and peach, plus mauve for control
+// flow and a cool grey for comments and punctuation.
+constexpr const char *SX_COMMENT = "9399B2";
+constexpr const char *SX_TEXT    = "CDD6F4";
+constexpr const char *SX_STRING  = "B4D8CC";
+constexpr const char *SX_KEYWORD = "CBA6F7";
+constexpr const char *SX_NUMBER  = "F9E2AF";
+constexpr const char *SX_TYPE    = "96A57E";
+constexpr const char *SX_ATTR    = "89B4FA";
+constexpr const char *SX_PUNCT   = "7F849C";
+constexpr const char *SX_PREPROC = "FAB387";
 
 // Multiline state carried from line to line. One byte per line is all the
 // lexers need; the state at the viewport anchor is rebuilt from the document
@@ -2740,10 +2745,10 @@ constexpr uint8_t SYN_TRIPLE_S = 0x40;  // Python ''' ... '''
 
 // Worst case per column is a literal '#' (2 bytes) or a colour change
 // (1 + 1 + 6 + 1 = 9); closing a run and reopening it for a '#' costs 12.
-// A band is at most editorViewportCols() = 74 glyphs at the 10 px cut, so
-// under 900 bytes; 1 KiB leaves room for the closing '#' and always keeps
-// three bytes free.
-constexpr size_t MARKUP_CAPACITY = 1024;
+// A band is at most editorViewportCols() = 89 glyphs at the 10 px cut, so
+// 9 + 89 * 12 + 1 = 1078 bytes; 1280 leaves room for the closing '#' and
+// always keeps three bytes free.
+constexpr size_t MARKUP_CAPACITY = 1280;
 
 class Markup {
  public:
@@ -3696,7 +3701,7 @@ const char *docLineBaseColor(DocLang lang, const char *s, size_t n,
 // state. The 4 px matches the label's left pad (see the caret x math).
 int editorViewportCols() {
   const int textW = editorLineNumbers ? (SCREEN_W - 28 - 34) : (SCREEN_W - 28);
-  const int glyph = editorGlyphWidth ? editorGlyphWidth : 9;
+  const int glyph = editorGlyphWidth ? editorGlyphWidth : 7;
   return (textW - 4) / glyph;
 }
 
@@ -3991,17 +3996,17 @@ void updateEditorLines() {
       // Reset the row's styling too. Clearing only the text left the old
       // cursor-line tint on bands that used to be wrapped continuation rows,
       // so an erased long line left a light block below the text.
-      if (bandPaint[row].bg != 0x10171C) {
-        lv_obj_set_style_bg_color(lineLabels[row], lv_color_hex(0x10171C), 0);
+      if (bandPaint[row].bg != 0x11111B) {
+        lv_obj_set_style_bg_color(lineLabels[row], lv_color_hex(0x11111B), 0);
         lv_obj_set_style_bg_opa(lineLabels[row], LV_OPA_COVER, 0);
-        bandPaint[row].bg = 0x10171C;
+        bandPaint[row].bg = 0x11111B;
       }
       if (gutterLabels[row]) {
         labelSetTextIfChanged(gutterLabels[row], "");
-        if (bandPaint[row].gutterInk != 0x71858F) {
+        if (bandPaint[row].gutterInk != 0x7F849C) {
           lv_obj_set_style_text_color(gutterLabels[row],
-                                      lv_color_hex(0x71858F), 0);
-          bandPaint[row].gutterInk = 0x71858F;
+                                      lv_color_hex(0x7F849C), 0);
+          bandPaint[row].gutterInk = 0x7F849C;
         }
       }
       continue;
@@ -4067,9 +4072,9 @@ void updateEditorLines() {
       lv_obj_set_style_text_font(lineLabels[row], font, 0);
       bandPaint[row].font = font;
     }
-    const uint32_t bg = selected ? 0x17343A
-                        : band.line == cursorLine ? 0x17242A
-                                                  : 0x10171C;
+    const uint32_t bg = selected ? 0x23304A
+                        : band.line == cursorLine ? 0x181825
+                                                  : 0x11111B;
     if (bandPaint[row].bg != bg) {
       lv_obj_set_style_bg_color(lineLabels[row], lv_color_hex(bg), 0);
       lv_obj_set_style_bg_opa(lineLabels[row], LV_OPA_COVER, 0);
@@ -4096,7 +4101,7 @@ void updateEditorLines() {
         labelSetTextIfChanged(gutterLabels[row], "");
       }
       const uint32_t gutterInk =
-          band.line == cursorLine ? 0xD4DFE5 : 0x71858F;
+          band.line == cursorLine ? 0xBAC2DE : 0x7F849C;
       if (bandPaint[row].gutterInk != gutterInk) {
         lv_obj_set_style_text_color(gutterLabels[row],
             lv_color_hex(gutterInk), 0);
@@ -4187,7 +4192,7 @@ void updateEditorLines() {
       const bool caretBandSelected =
           visualMode && caretBandStart <= selEnd &&
           caretBandStart + caretBandLen >= selStart;
-      const uint32_t invertInk = caretBandSelected ? 0x17343A : 0x17242A;
+      const uint32_t invertInk = caretBandSelected ? 0x11111B : 0x181825;
       if (cursorGlyphInk != invertInk) {
         lv_obj_set_style_text_color(cursorGlyph, lv_color_hex(invertInk), 0);
         cursorGlyphInk = invertInk;
@@ -4270,10 +4275,10 @@ void updateEditorLines() {
       lv_obj_set_style_text_font(documentLabel,
           unsaved ? &elms_bold_italic_14 : &elms_bold_14, 0);
       lv_obj_set_style_text_color(documentLabel,
-          unsaved ? lv_color_hex(0xFF6B81) : lv_color_hex(0xA8E6CF), 0);
+          unsaved ? lv_color_hex(0xF38BA8) : lv_color_hex(0xB5C39D), 0);
 
       breadWidth = lv_txt_get_width(breadPath.c_str(),
-          static_cast<uint32_t>(breadPath.size()), &space_mono_14, 0,
+          static_cast<uint32_t>(breadPath.size()), &terminess_14, 0,
           LV_TEXT_FLAG_NONE);
       documentX = -1;  // the name follows the width; re-place it below
     }
@@ -5121,7 +5126,7 @@ lv_obj_t *makeButton(lv_obj_t *parent, const char *label, int x, int width,
   // Center the 22 px button in the 30 px header's 28 px content area
   // (30 minus the 1 px borders): (28 - 22) / 2 = 3 px above and below.
   lv_obj_set_pos(button, x, 3);
-  stylePanel(button, lv_color_hex(0x18272D), lv_color_hex(0x315360));
+  stylePanel(button, lv_color_hex(0x1E1E2E), lv_color_hex(0x45475A));
   lv_obj_add_event_cb(button, [](lv_event_t *) {
     lastInputMs = millis();
     if (backlightDimmed) {
@@ -5134,12 +5139,13 @@ lv_obj_t *makeButton(lv_obj_t *parent, const char *label, int x, int width,
   lv_label_set_text(text, label);
   lv_obj_center(text);
   setUiFont(text);
-  lv_obj_set_style_text_color(text, lv_color_hex(0xE8EEF2), 0);
+  lv_obj_set_style_text_color(text, lv_color_hex(0xCDD6F4), 0);
   return button;
 }
 
 lv_obj_t *makeToolbarButton(lv_obj_t *parent, const char *label, int x,
-                            int width, lv_event_cb_t callback) {
+                            int width, lv_event_cb_t callback,
+                            bool icon = false) {
   lv_obj_t *button = lv_btn_create(parent);
   lv_obj_set_size(button, width, 28);
   // Center the 28 px button in the 36 px editor header's 34 px content area
@@ -5148,7 +5154,7 @@ lv_obj_t *makeToolbarButton(lv_obj_t *parent, const char *label, int x,
   // buttons still use: these five controls sit close together and a BLE
   // keyboard's owner is also tapping at them.
   lv_obj_set_pos(button, x, 3);
-  stylePanel(button, lv_color_hex(0x18272D), lv_color_hex(0x315360));
+  stylePanel(button, lv_color_hex(0x1E1E2E), lv_color_hex(0x45475A));
   lv_obj_add_event_cb(button, [](lv_event_t *) {
     lastInputMs = millis();
     if (backlightDimmed) {
@@ -5160,9 +5166,11 @@ lv_obj_t *makeToolbarButton(lv_obj_t *parent, const char *label, int x,
   lv_obj_t *text = lv_label_create(button);
   lv_label_set_text(text, label);
   lv_obj_center(text);
-  // Icons live in the Space Mono Nerd Font, not Elms Sans.
-  lv_obj_set_style_text_font(text, &space_mono_14, 0);
-  lv_obj_set_style_text_color(text, lv_color_hex(0xE8EEF2), 0);
+  // Icon buttons keep the Space Mono Nerd Font glyphs; text buttons use the
+  // editor's Terminess cut.
+  lv_obj_set_style_text_font(text,
+      icon ? &space_mono_14_icons : &terminess_14, 0);
+  lv_obj_set_style_text_color(text, lv_color_hex(0xCDD6F4), 0);
   return button;
 }
 
@@ -5178,7 +5186,7 @@ lv_obj_t *makeBluetoothButton(lv_obj_t *parent, int x, int height = 22) {
   // The editor's taller bar grows the button by the same amount (36-28 = 30-22
   // = 8), so both headers keep a 3 px inset above and below.
   lv_obj_set_pos(button, x, 3);
-  stylePanel(button, lv_color_hex(0x18272D), lv_color_hex(0x315360));
+  stylePanel(button, lv_color_hex(0x1E1E2E), lv_color_hex(0x45475A));
   // Wake the backlight before navigating, like every other touch target.
   lv_obj_add_event_cb(button, [](lv_event_t *) {
     lastInputMs = millis();
@@ -5190,7 +5198,7 @@ lv_obj_t *makeBluetoothButton(lv_obj_t *parent, int x, int height = 22) {
   lv_obj_add_event_cb(button, pairClicked, LV_EVENT_CLICKED, nullptr);
   lv_obj_t *icon = lv_label_create(button);
   lv_label_set_text(icon, ICON_BLUETOOTH);
-  lv_obj_set_style_text_font(icon, &space_mono_20, 0);
+  lv_obj_set_style_text_font(icon, &space_mono_20_icons, 0);
   lv_obj_center(icon);
   return icon;
 }
@@ -5207,7 +5215,7 @@ lv_obj_t *makeMenuButton(lv_obj_t *parent, const char *label, int x, int y,
   lv_obj_t *button = lv_btn_create(parent);
   lv_obj_set_size(button, width, height);
   lv_obj_set_pos(button, x, y);
-  stylePanel(button, lv_color_hex(0x18272D), lv_color_hex(0x315360));
+  stylePanel(button, lv_color_hex(0x1E1E2E), lv_color_hex(0x45475A));
   lv_obj_add_event_cb(button, [](lv_event_t *) {
     lastInputMs = millis();
     if (backlightDimmed) {
@@ -5235,7 +5243,7 @@ lv_obj_t *makeMenuButton(lv_obj_t *parent, const char *label, int x, int y,
     lv_label_set_text(text, label);
     lv_obj_center(text);
     setUiFont(text);
-    lv_obj_set_style_text_color(text, lv_color_hex(0xE8EEF2), 0);
+    lv_obj_set_style_text_color(text, lv_color_hex(0xCDD6F4), 0);
     return button;
   }
   const lv_font_t *font = &elms_bold_12;
@@ -5254,21 +5262,21 @@ lv_obj_t *makeMenuButton(lv_obj_t *parent, const char *label, int x, int y,
   lv_obj_t *keyLabel = lv_label_create(button);
   lv_label_set_text(keyLabel, keyText);
   setUiFont(keyLabel);
-  lv_obj_set_style_text_color(keyLabel, lv_color_hex(0xE8EEF2), 0);
+  lv_obj_set_style_text_color(keyLabel, lv_color_hex(0xCDD6F4), 0);
   lv_obj_set_style_text_decor(keyLabel, LV_TEXT_DECOR_UNDERLINE, 0);
   lv_obj_align(keyLabel, LV_ALIGN_CENTER, (leadW - tailW) / 2, 0);
   if (lead[0]) {
     lv_obj_t *leadLabel = lv_label_create(button);
     lv_label_set_text(leadLabel, lead);
     setUiFont(leadLabel);
-    lv_obj_set_style_text_color(leadLabel, lv_color_hex(0xE8EEF2), 0);
+    lv_obj_set_style_text_color(leadLabel, lv_color_hex(0xCDD6F4), 0);
     lv_obj_align(leadLabel, LV_ALIGN_CENTER, -(keyW + tailW) / 2, 0);
   }
   if (tail[0]) {
     lv_obj_t *tailLabel = lv_label_create(button);
     lv_label_set_text(tailLabel, tail);
     setUiFont(tailLabel);
-    lv_obj_set_style_text_color(tailLabel, lv_color_hex(0xE8EEF2), 0);
+    lv_obj_set_style_text_color(tailLabel, lv_color_hex(0xCDD6F4), 0);
     lv_obj_align(tailLabel, LV_ALIGN_CENTER, (leadW + keyW) / 2, 0);
   }
   return button;
@@ -5292,7 +5300,7 @@ lv_obj_t *makeMenuTileButton(lv_obj_t *parent, const char *icon,
   lv_obj_t *button = lv_btn_create(parent);
   lv_obj_set_size(button, width, height);
   lv_obj_set_pos(button, x, y);
-  stylePanel(button, lv_color_hex(0x18272D), lv_color_hex(0x315360));
+  stylePanel(button, lv_color_hex(0x1E1E2E), lv_color_hex(0x45475A));
   lv_obj_add_event_cb(button, [](lv_event_t *) {
     lastInputMs = millis();
     if (backlightDimmed) {
@@ -5306,12 +5314,12 @@ lv_obj_t *makeMenuTileButton(lv_obj_t *parent, const char *icon,
   // Icons live in the Space Mono Nerd Font, not Elms Sans.
   lv_obj_set_style_text_font(glyph, iconFont ? iconFont : &space_mono_28, 0);
   // Accent green, the same tone as the screen title and power label.
-  lv_obj_set_style_text_color(glyph, lv_color_hex(0x8DE6B3), 0);
+  lv_obj_set_style_text_color(glyph, lv_color_hex(0x96A57E), 0);
   lv_obj_align(glyph, LV_ALIGN_TOP_MID, 0, iconY);
   lv_obj_t *text = lv_label_create(button);
   lv_label_set_text(text, label);
   lv_obj_set_style_text_font(text, &elms_bold_14, 0);
-  lv_obj_set_style_text_color(text, lv_color_hex(0xE8EEF2), 0);
+  lv_obj_set_style_text_color(text, lv_color_hex(0xCDD6F4), 0);
   lv_obj_align(text, LV_ALIGN_TOP_MID, 0, labelY);
   if (shortcut > 0) {
     // The key that jumps straight here. Dim slate keeps it a hint: it must not
@@ -5322,7 +5330,7 @@ lv_obj_t *makeMenuTileButton(lv_obj_t *parent, const char *icon,
     lv_obj_t *badge = lv_label_create(button);
     lv_label_set_text(badge, hint);
     lv_obj_set_style_text_font(badge, &elms_bold_12, 0);
-    lv_obj_set_style_text_color(badge, lv_color_hex(0x71858F), 0);
+    lv_obj_set_style_text_color(badge, lv_color_hex(0x7F849C), 0);
     lv_obj_align(badge, LV_ALIGN_TOP_RIGHT, -7, 5);
   }
   return button;
@@ -5372,7 +5380,7 @@ void makeTrackedShortcutLabel(lv_obj_t *parent, const char *before, char key,
 
 void makeShortcutLabel(lv_obj_t *parent, const char *before, char key,
                        const char *after, int x, int y,
-                       lv_color_t color = lv_color_hex(0xD4DFE5)) {
+                       lv_color_t color = lv_color_hex(0xBAC2DE)) {
   lv_obj_t *lead, *keyLabel, *tail;
   makeTrackedShortcutLabel(parent, before, key, after, x, y, color, lead,
                            keyLabel, tail);
@@ -5393,9 +5401,9 @@ lv_obj_t *makeToggleRow(lv_obj_t *parent, const char *before, char key,
   lv_obj_set_size(sw, 46, 22);
   lv_obj_set_pos(sw, 410, y);
   // Track: same dark panel/border palette as every other control.
-  lv_obj_set_style_bg_color(sw, lv_color_hex(0x18272D), LV_PART_MAIN);
+  lv_obj_set_style_bg_color(sw, lv_color_hex(0x1E1E2E), LV_PART_MAIN);
   lv_obj_set_style_bg_opa(sw, LV_OPA_COVER, LV_PART_MAIN);
-  lv_obj_set_style_border_color(sw, lv_color_hex(0x315360), LV_PART_MAIN);
+  lv_obj_set_style_border_color(sw, lv_color_hex(0x45475A), LV_PART_MAIN);
   lv_obj_set_style_border_width(sw, 1, LV_PART_MAIN);
   lv_obj_set_style_radius(sw, LV_RADIUS_CIRCLE, LV_PART_MAIN);
   // Fill: transparent when off, the slider-accent green when checked.
@@ -5403,16 +5411,16 @@ lv_obj_t *makeToggleRow(lv_obj_t *parent, const char *before, char key,
   // Casting one side silences -Wdeprecated-enum-enum-conversion: LVGL 8
   // keeps states and parts in separate enums, but OR-ing them is the
   // documented selector idiom.
-  lv_obj_set_style_bg_color(sw, lv_color_hex(0x4CCB8B),
+  lv_obj_set_style_bg_color(sw, lv_color_hex(0x96A57E),
                             (uint32_t)LV_STATE_CHECKED | LV_PART_INDICATOR);
   lv_obj_set_style_bg_opa(sw, LV_OPA_COVER,
                           (uint32_t)LV_STATE_CHECKED | LV_PART_INDICATOR);
   lv_obj_set_style_radius(sw, LV_RADIUS_CIRCLE, LV_PART_INDICATOR);
   // Knob: light pill. LVGL 8 switch knobs pad outward from the full-height
   // area, so negative padding insets the knob inside the track.
-  lv_obj_set_style_bg_color(sw, lv_color_hex(0xE8EEF2), LV_PART_KNOB);
+  lv_obj_set_style_bg_color(sw, lv_color_hex(0xCDD6F4), LV_PART_KNOB);
   lv_obj_set_style_bg_opa(sw, LV_OPA_COVER, LV_PART_KNOB);
-  lv_obj_set_style_border_color(sw, lv_color_hex(0x2C424B), LV_PART_KNOB);
+  lv_obj_set_style_border_color(sw, lv_color_hex(0x313244), LV_PART_KNOB);
   lv_obj_set_style_border_width(sw, 1, LV_PART_KNOB);
   lv_obj_set_style_radius(sw, LV_RADIUS_CIRCLE, LV_PART_KNOB);
   lv_obj_set_style_pad_all(sw, -2, LV_PART_KNOB);
@@ -5432,7 +5440,7 @@ lv_obj_t *makeChoiceRow(lv_obj_t *parent, const char *before, char key,
   lv_obj_t *pill = lv_btn_create(parent);
   lv_obj_set_size(pill, 126, 24);
   lv_obj_set_pos(pill, 330, y - 1);
-  stylePanel(pill, lv_color_hex(0x18272D), lv_color_hex(0x315360));
+  stylePanel(pill, lv_color_hex(0x1E1E2E), lv_color_hex(0x45475A));
   lv_obj_add_event_cb(pill, [](lv_event_t *) {
     lastInputMs = millis();
     if (backlightDimmed) {
@@ -5445,7 +5453,7 @@ lv_obj_t *makeChoiceRow(lv_obj_t *parent, const char *before, char key,
   lv_label_set_text(text, value);
   lv_obj_center(text);
   setUiFont(text);
-  lv_obj_set_style_text_color(text, lv_color_hex(0xE8EEF2), 0);
+  lv_obj_set_style_text_color(text, lv_color_hex(0xCDD6F4), 0);
   return text;
 }
 
@@ -5464,30 +5472,30 @@ void buildMainMenuScreen() {
   brightnessSlider = smoothSwitch = markdownSwitch = autoSaveSwitch =
       dimSwitch = lineNumberSwitch = wordWrapSwitch = nullptr;
   lv_obj_clear_flag(lv_scr_act(), LV_OBJ_FLAG_SCROLLABLE);
-  lv_obj_set_style_bg_color(lv_scr_act(), lv_color_hex(0x10171C), 0);
+  lv_obj_set_style_bg_color(lv_scr_act(), lv_color_hex(0x11111B), 0);
 
   lv_obj_t *header = lv_obj_create(lv_scr_act());
   lv_obj_set_size(header, SCREEN_W - 8, 30);
   lv_obj_set_pos(header, 4, 4);
-  stylePanel(header, lv_color_hex(0x141E24), lv_color_hex(0x2C424B));
+  stylePanel(header, lv_color_hex(0x181825), lv_color_hex(0x313244));
   lv_obj_t *heading = lv_label_create(header);
   lv_label_set_text(heading, "WriterInAWell");
   lv_obj_set_pos(heading, 10, 4);
   setTitleFont(heading);
-  lv_obj_set_style_text_color(heading, lv_color_hex(0x8DE6B3), 0);
+  lv_obj_set_style_text_color(heading, lv_color_hex(0x96A57E), 0);
   // Root screen: no BACK. The Bluetooth square doubles as the shortcut to the
   // BLE keyboard picker; loop() tints its icon with the connection state at
   // 1 Hz.
   const String keyboard = keyboardStatus();
   menuRadioLabel = makeBluetoothButton(header, 438);
   lv_obj_set_style_text_color(menuRadioLabel,
-      keyboard.startsWith("Connected:") ? lv_color_hex(0x8DE6B3)
-                                        : lv_color_hex(0x78C8F4), 0);
+      keyboard.startsWith("Connected:") ? lv_color_hex(0x96A57E)
+                                        : lv_color_hex(0x89B4FA), 0);
 
   lv_obj_t *panel = lv_obj_create(lv_scr_act());
   lv_obj_set_size(panel, SCREEN_W - 8, 240);
   lv_obj_set_pos(panel, 4, 39);
-  stylePanel(panel, lv_color_hex(0x10171C), lv_color_hex(0x2C424B));
+  stylePanel(panel, lv_color_hex(0x11111B), lv_color_hex(0x313244));
   // 2x2 grid of icon tiles: 222 px cells with a 4 px row gap and 12 px outer
   // margins inside the 472x240 px panel, so each tile is
   // (240 - 2*12 - 4) / 2 = 106 px tall and the grid fills the full height
@@ -5517,7 +5525,7 @@ void buildMainMenuScreen() {
     menuTileButtons[i] = button;
     lv_obj_set_style_bg_color(button,
         i == static_cast<intptr_t>(menuSelection)
-            ? lv_color_hex(0x1A2D32) : lv_color_hex(0x18272D), 0);
+            ? lv_color_hex(0x313244) : lv_color_hex(0x1E1E2E), 0);
   }
 
   lv_obj_t *footRow = makeHintRow();
@@ -5532,8 +5540,8 @@ void refreshMenuSelection() {
   for (int i = 0; i < 4; ++i) {
     if (!menuTileButtons[i]) continue;
     lv_obj_set_style_bg_color(menuTileButtons[i],
-        i == static_cast<int>(menuSelection) ? lv_color_hex(0x1A2D32)
-                                             : lv_color_hex(0x18272D), 0);
+        i == static_cast<int>(menuSelection) ? lv_color_hex(0x313244)
+                                             : lv_color_hex(0x1E1E2E), 0);
   }
 }
 
@@ -5596,7 +5604,7 @@ void updateTypingWords() {
     const size_t length = strlen(word);
     if (i < typingCurrentWord) {
       // Finished words: mint when clean, pink when anything went wrong.
-      typingSpan(pos, typingWordWrong[i] ? "FF6B81" : "8DE6B3",
+      typingSpan(pos, typingWordWrong[i] ? "F38BA8" : "96A57E",
                 word, length);
     } else if (i > typingCurrentWord) {
       typingSpan(pos, "5F707A", word, length);
@@ -5614,13 +5622,13 @@ void updateTypingWords() {
       if (correct) typingSpan(pos, "E8EEF2", word, correct);
       const size_t mismatchEnd = std::min<size_t>(typedLen, length);
       if (mismatchEnd > correct) {
-        typingSpan(pos, "FF6B81", word + correct, mismatchEnd - correct);
+        typingSpan(pos, "F38BA8", word + correct, mismatchEnd - correct);
       }
       if (length > mismatchEnd) {
         typingSpan(pos, "A9BAC2", word + mismatchEnd, length - mismatchEnd);
       }
       if (typedLen > length) {
-        typingSpan(pos, "FF6B81", typed + length, typedLen - length);
+        typingSpan(pos, "F38BA8", typed + length, typedLen - length);
       }
     }
   }
@@ -5916,7 +5924,7 @@ void typingPickWords() {
       measureLen += length;
       typingMeasureText[measureLen] = '\0';
       lv_point_t size;
-      lv_txt_get_size(&size, typingMeasureText, &space_mono_20, 0, 0, width,
+      lv_txt_get_size(&size, typingMeasureText, &terminess_20, 0, 0, width,
                       LV_TEXT_FLAG_NONE);
       if (size.y > TYPING_WORD_AREA_H && count > 0) {
         measureLen -= length + spacer;
@@ -5931,7 +5939,7 @@ void typingPickWords() {
   if (count == 0) count = 1;
 
   // Close the paragraph where the run stops. For Long the extra glyph can
-  // wrap the last word onto a ninth band, so re-measure and undo it then.
+  // wrap the last word onto a tenth band, so re-measure and undo it then.
   const char mark = typingCloseFinalWord(count - 1);
   if (mark && fill) {
     char *last = typingWords[count - 1];
@@ -5941,7 +5949,7 @@ void typingPickWords() {
       typingMeasureText[measureLen++] = mark;
       typingMeasureText[measureLen] = '\0';
       lv_point_t size;
-      lv_txt_get_size(&size, typingMeasureText, &space_mono_20, 0, 0, width,
+      lv_txt_get_size(&size, typingMeasureText, &terminess_20, 0, 0, width,
                       LV_TEXT_FLAG_NONE);
       if (size.y > TYPING_WORD_AREA_H) {
         appended = false;
@@ -6150,7 +6158,7 @@ lv_obj_t *makeTypingStatBar(lv_obj_t *panel, int y, int height, bool rows) {
   lv_obj_t *bar = lv_obj_create(panel);
   lv_obj_set_pos(bar, 6, y);
   lv_obj_set_size(bar, TYPING_STAT_BAR_W, height);
-  lv_obj_set_style_bg_color(bar, lv_color_hex(0x2C424B), 0);
+  lv_obj_set_style_bg_color(bar, lv_color_hex(0x313244), 0);
   lv_obj_set_style_bg_opa(bar, LV_OPA_COVER, 0);
   lv_obj_set_style_border_width(bar, 0, 0);
   lv_obj_set_style_radius(bar, 3, 0);
@@ -6184,23 +6192,23 @@ void buildTypingPracticeScreen() {
   for (size_t i = 0; i < TYPING_LIVE_COUNT; ++i) typingLiveValue[i] = nullptr;
   for (size_t i = 0; i < TYPING_SUM_COUNT; ++i) typingSummaryValue[i] = nullptr;
   lv_obj_clear_flag(lv_scr_act(), LV_OBJ_FLAG_SCROLLABLE);
-  lv_obj_set_style_bg_color(lv_scr_act(), lv_color_hex(0x10171C), 0);
+  lv_obj_set_style_bg_color(lv_scr_act(), lv_color_hex(0x11111B), 0);
 
   lv_obj_t *header = lv_obj_create(lv_scr_act());
   lv_obj_set_size(header, SCREEN_W - 8, 30);
   lv_obj_set_pos(header, 4, 4);
-  stylePanel(header, lv_color_hex(0x141E24), lv_color_hex(0x2C424B));
+  stylePanel(header, lv_color_hex(0x181825), lv_color_hex(0x313244));
   lv_obj_t *heading = lv_label_create(header);
   lv_label_set_text(heading, "TYPING PRACTICE");
   lv_obj_set_pos(heading, 10, 4);
   setTitleFont(heading);
-  lv_obj_set_style_text_color(heading, lv_color_hex(0x8DE6B3), 0);
+  lv_obj_set_style_text_color(heading, lv_color_hex(0x96A57E), 0);
   // Practice rules live one touch target away: the same SETTINGS button the
   // main menu uses, plus the ctrl-o command chip in the hint row.
   makeButton(header, "SETTINGS", 246, 92, typingSettingsClicked);
   // RETRY = separate icon and text labels. The Nerd Font glyph only exists
-  // in Space Mono (17 px line box, the same look as the editor toolbar
-  // icons), while the text stays Elms 12 like every other button label, so
+  // in the Space Mono icon-only 14 px cut (13 px line box), while the text
+  // stays Elms 12 like every other button label, so
   // the pair no longer reads taller than BACK. Each label centers on its
   // own line box and the two split horizontally around the button center.
   lv_obj_t *retry = makeButton(header, "RETRY", 347, 68,
@@ -6208,10 +6216,10 @@ void buildTypingPracticeScreen() {
   lv_obj_t *retryText = lv_obj_get_child(retry, 0);
   lv_obj_t *retryIcon = lv_label_create(retry);
   lv_label_set_text(retryIcon, ICON_RETRY);
-  lv_obj_set_style_text_font(retryIcon, &space_mono_14, 0);
-  lv_obj_set_style_text_color(retryIcon, lv_color_hex(0xE8EEF2), 0);
+  lv_obj_set_style_text_font(retryIcon, &space_mono_14_icons, 0);
+  lv_obj_set_style_text_color(retryIcon, lv_color_hex(0xCDD6F4), 0);
   const lv_coord_t retryIconW =
-      lv_font_get_glyph_width(&space_mono_14, 0xF01E, 0);
+      lv_font_get_glyph_width(&space_mono_14_icons, 0xF01E, 0);
   const lv_coord_t retryTextW =
       lv_txt_get_width("RETRY", 5, &elms_bold_12, 0, LV_TEXT_FLAG_NONE);
   lv_obj_align(retryIcon, LV_ALIGN_CENTER, -((retryTextW + 3) / 2), 0);
@@ -6224,7 +6232,7 @@ void buildTypingPracticeScreen() {
   lv_obj_t *panel = lv_obj_create(lv_scr_act());
   lv_obj_set_size(panel, SCREEN_W - 8, 240);
   lv_obj_set_pos(panel, 4, 39);
-  stylePanel(panel, lv_color_hex(0x10171C), lv_color_hex(0x2C424B));
+  stylePanel(panel, lv_color_hex(0x11111B), lv_color_hex(0x313244));
 
   // Stats bars. Both are built once and swapped with the HIDDEN flag, so the
   // word stream below never moves between the live run and the summary.
@@ -6261,17 +6269,17 @@ void buildTypingPracticeScreen() {
   typingSummaryShown = false;
   setWidgetHidden(typingSummaryBar, true);
 
-  // Word stream uses the 20 px Space Mono cut (line height 23): the 1-bpp
-  // crisp variant only exists at 14 px, so practice text is always smooth.
-  // It starts under the bars and runs to the panel's bottom edge: eight word
-  // bands, which is also what the Long fit check measures against.
+  // Word stream uses the 20 px Terminess cut (native 20 px strike, line height
+  // 20). The 1-bpp crisp variants only exist for the editor ladder, so practice
+  // text is always smooth. It starts under the bars and runs to the panel's
+  // bottom edge: nine word bands, which the Long fit check measures against.
   typingWordsLabel = lv_label_create(panel);
   lv_obj_set_pos(typingWordsLabel, 10, TYPING_WORDS_Y);
   lv_obj_set_width(typingWordsLabel, TYPING_WORD_AREA_W);
   lv_label_set_recolor(typingWordsLabel, true);
-  lv_obj_set_style_text_font(typingWordsLabel, &space_mono_20, 0);
+  lv_obj_set_style_text_font(typingWordsLabel, &terminess_20, 0);
   // Base color covers the separating spaces; spans override per band.
-  lv_obj_set_style_text_color(typingWordsLabel, lv_color_hex(0x5F707A), 0);
+  lv_obj_set_style_text_color(typingWordsLabel, lv_color_hex(0x7F849C), 0);
 
   // Run info sits in the strip between the panel and the hint row, the same
   // place the editor keeps its status line.
@@ -6280,7 +6288,7 @@ void buildTypingPracticeScreen() {
   lv_obj_set_width(typingStatusLabel, SCREEN_W - 16);
   lv_label_set_long_mode(typingStatusLabel, LV_LABEL_LONG_DOT);
   setUiFont(typingStatusLabel);
-  lv_obj_set_style_text_color(typingStatusLabel, lv_color_hex(0xA9BAC2), 0);
+  lv_obj_set_style_text_color(typingStatusLabel, lv_color_hex(0xA6ADC8), 0);
   lv_label_set_text(typingStatusLabel, typingStatusText);
 
   lv_obj_t *footRow = makeHintRow();
@@ -6421,23 +6429,23 @@ void buildTypingSettingsScreen() {
   for (size_t i = 0; i < TYPING_LIVE_COUNT; ++i) typingLiveValue[i] = nullptr;
   for (size_t i = 0; i < TYPING_SUM_COUNT; ++i) typingSummaryValue[i] = nullptr;
   lv_obj_clear_flag(lv_scr_act(), LV_OBJ_FLAG_SCROLLABLE);
-  lv_obj_set_style_bg_color(lv_scr_act(), lv_color_hex(0x10171C), 0);
+  lv_obj_set_style_bg_color(lv_scr_act(), lv_color_hex(0x11111B), 0);
 
   lv_obj_t *header = lv_obj_create(lv_scr_act());
   lv_obj_set_size(header, SCREEN_W - 8, 30);
   lv_obj_set_pos(header, 4, 4);
-  stylePanel(header, lv_color_hex(0x141E24), lv_color_hex(0x2C424B));
+  stylePanel(header, lv_color_hex(0x181825), lv_color_hex(0x313244));
   lv_obj_t *heading = lv_label_create(header);
   lv_label_set_text(heading, "TYPING SETTINGS");
   lv_obj_set_pos(heading, 10, 4);
   setTitleFont(heading);
-  lv_obj_set_style_text_color(heading, lv_color_hex(0x8DE6B3), 0);
+  lv_obj_set_style_text_color(heading, lv_color_hex(0x96A57E), 0);
   makeButton(header, "BACK", 412, 54, typingSettingsBackClicked);
 
   lv_obj_t *panel = lv_obj_create(lv_scr_act());
   lv_obj_set_size(panel, SCREEN_W - 8, 240);
   lv_obj_set_pos(panel, 4, 39);
-  stylePanel(panel, lv_color_hex(0x10171C), lv_color_hex(0x2C424B));
+  stylePanel(panel, lv_color_hex(0x11111B), lv_color_hex(0x313244));
 
   // Two choice rows then four toggles, full-width above the note. Tapping a
   // pill cycles it; the underlined letter does the same from the keyboard.
@@ -6458,7 +6466,7 @@ void buildTypingSettingsScreen() {
   lv_label_set_text(note, "Changes start a fresh run.");
   lv_obj_set_pos(note, 14, 220);
   setUiFont(note);
-  lv_obj_set_style_text_color(note, lv_color_hex(0x71858F), 0);
+  lv_obj_set_style_text_color(note, lv_color_hex(0x7F849C), 0);
 
   lv_obj_t *footRow = makeHintRow();
   addHintPair(footRow, "c/m", "change");
@@ -6594,29 +6602,29 @@ void buildStartScreen() {
   brightnessSlider = smoothSwitch = markdownSwitch = autoSaveSwitch =
       dimSwitch = lineNumberSwitch = wordWrapSwitch = nullptr;
   lv_obj_clear_flag(lv_scr_act(), LV_OBJ_FLAG_SCROLLABLE);
-  lv_obj_set_style_bg_color(lv_scr_act(), lv_color_hex(0x10171C), 0);
+  lv_obj_set_style_bg_color(lv_scr_act(), lv_color_hex(0x11111B), 0);
 
   lv_obj_t *header = lv_obj_create(lv_scr_act());
   lv_obj_set_size(header, SCREEN_W - 8, 30);
   lv_obj_set_pos(header, 4, 4);
-  stylePanel(header, lv_color_hex(0x141E24), lv_color_hex(0x2C424B));
+  stylePanel(header, lv_color_hex(0x181825), lv_color_hex(0x313244));
   lv_obj_t *heading = lv_label_create(header);
   lv_label_set_text(heading, "TEXT EDITOR");
   lv_obj_set_pos(heading, 10, 4);
   setTitleFont(heading);
-  lv_obj_set_style_text_color(heading, lv_color_hex(0x8DE6B3), 0);
+  lv_obj_set_style_text_color(heading, lv_color_hex(0x96A57E), 0);
   makeButton(header, "BACK", 412, 54, backClicked);  // backTarget is Menu
 
   // Left column: n / f / r / q, one button row each.
   lv_obj_t *commands = lv_obj_create(lv_scr_act());
   lv_obj_set_size(commands, 222, 240);
   lv_obj_set_pos(commands, 4, 39);
-  stylePanel(commands, lv_color_hex(0x10171C), lv_color_hex(0x2C424B));
+  stylePanel(commands, lv_color_hex(0x11111B), lv_color_hex(0x313244));
   lv_obj_t *cmdTitle = lv_label_create(commands);
   lv_label_set_text(cmdTitle, "COMMANDS");
   lv_obj_set_pos(cmdTitle, 12, 8);
   setUiFont(cmdTitle);
-  lv_obj_set_style_text_color(cmdTitle, lv_color_hex(0x71858F), 0);
+  lv_obj_set_style_text_color(cmdTitle, lv_color_hex(0x7F849C), 0);
   static const struct { const char *key; const char *label; } rows[4] = {
       {"n", "New file"}, {"f", "Find a file"},
       {"r", "Recent files"}, {"q", "Quit to menu"},
@@ -6625,7 +6633,7 @@ void buildStartScreen() {
     lv_obj_t *button = lv_btn_create(commands);
     lv_obj_set_size(button, 194, 30);
     lv_obj_set_pos(button, 12, 30 + i * 38);
-    stylePanel(button, lv_color_hex(0x18272D), lv_color_hex(0x315360));
+    stylePanel(button, lv_color_hex(0x1E1E2E), lv_color_hex(0x45475A));
     lv_obj_add_event_cb(button, [](lv_event_t *) {
       lastInputMs = millis();
       if (backlightDimmed) {
@@ -6641,25 +6649,25 @@ void buildStartScreen() {
     lv_label_set_text(text, rows[i].label);
     lv_obj_set_pos(text, 40, 7);
     setUiFont(text);
-    lv_obj_set_style_text_color(text, lv_color_hex(0xE8EEF2), 0);
+    lv_obj_set_style_text_color(text, lv_color_hex(0xCDD6F4), 0);
   }
 
   // Right column: the persisted recent documents, newest first.
   lv_obj_t *recent = lv_obj_create(lv_scr_act());
   lv_obj_set_size(recent, 246, 240);
   lv_obj_set_pos(recent, 230, 39);
-  stylePanel(recent, lv_color_hex(0x10171C), lv_color_hex(0x2C424B));
+  stylePanel(recent, lv_color_hex(0x11111B), lv_color_hex(0x313244));
   lv_obj_t *recTitle = lv_label_create(recent);
   lv_label_set_text(recTitle, "RECENT");
   lv_obj_set_pos(recTitle, 12, 8);
   setUiFont(recTitle);
-  lv_obj_set_style_text_color(recTitle, lv_color_hex(0x71858F), 0);
+  lv_obj_set_style_text_color(recTitle, lv_color_hex(0x7F849C), 0);
   if (recentFiles.empty()) {
     lv_obj_t *none = lv_label_create(recent);
     lv_label_set_text(none, "No recent files");
     lv_obj_set_pos(none, 12, 38);
     setUiFont(none);
-    lv_obj_set_style_text_color(none, lv_color_hex(0x71858F), 0);
+    lv_obj_set_style_text_color(none, lv_color_hex(0x7F849C), 0);
   } else {
     for (size_t i = 0; i < recentFiles.size(); ++i) {
       const size_t slash = recentFiles[i].rfind('/');
@@ -6668,9 +6676,9 @@ void buildStartScreen() {
       lv_obj_t *row = lv_btn_create(recent);
       lv_obj_set_size(row, 222, 30);
       lv_obj_set_pos(row, 8, 30 + static_cast<int>(i) * 34);
-      stylePanel(row, i == recentSelection ? lv_color_hex(0x1A2D32)
-                                           : lv_color_hex(0x10171C),
-                 lv_color_hex(0x2C424B));
+      stylePanel(row, i == recentSelection ? lv_color_hex(0x313244)
+                                           : lv_color_hex(0x11111B),
+                 lv_color_hex(0x313244));
       lv_obj_add_event_cb(row, recentClicked, LV_EVENT_CLICKED,
                           reinterpret_cast<void *>(static_cast<intptr_t>(i)));
       lv_obj_t *label = lv_label_create(row);
@@ -6680,8 +6688,8 @@ void buildStartScreen() {
       lv_obj_set_pos(label, 7, 7);
       setUiFont(label);
       lv_obj_set_style_text_color(label,
-          i == recentSelection ? lv_color_hex(0xA8E6CF)
-                               : lv_color_hex(0xD4DFE5), 0);
+          i == recentSelection ? lv_color_hex(0xB5C39D)
+                               : lv_color_hex(0xBAC2DE), 0);
     }
   }
 
@@ -6726,31 +6734,31 @@ void buildEditorScreen() {
   brightnessSlider = smoothSwitch = markdownSwitch = autoSaveSwitch =
       dimSwitch = lineNumberSwitch = wordWrapSwitch = nullptr;
   lv_obj_clear_flag(lv_scr_act(), LV_OBJ_FLAG_SCROLLABLE);
-  lv_obj_set_style_bg_color(lv_scr_act(), lv_color_hex(0x10171C), 0);
+  lv_obj_set_style_bg_color(lv_scr_act(), lv_color_hex(0x11111B), 0);
 
   lv_obj_t *header = lv_obj_create(lv_scr_act());
   // 36 px tall (was 30) so the five editor controls are 28 px tall and easier
   // to tap. The canvas below starts at 41 (editorCanvasY) with its height
-  // reduced by 2, so the page bottom and the 13-row text area are unchanged.
+  // reduced by 2, so the page bottom and the 221 px text area are unchanged.
   // Other screens keep their 30 px bar.
   lv_obj_set_size(header, SCREEN_W - 8, 36);
   lv_obj_set_pos(header, 4, 4);
-  stylePanel(header, lv_color_hex(0x141E24), lv_color_hex(0x2C424B));
-  makeToolbarButton(header, ICON_MENU, 3, 30, menuClicked);
+  stylePanel(header, lv_color_hex(0x181825), lv_color_hex(0x313244));
+  makeToolbarButton(header, ICON_MENU, 3, 30, menuClicked, true);
 
   pathLabel = lv_label_create(header);
   lv_label_set_text(pathLabel, "~/");
   // 14 px line box centered in the 34 px content area: (34 - 14) / 2 = 10.
   lv_obj_set_pos(pathLabel, 40, 10);
-  lv_obj_set_style_text_font(pathLabel, &space_mono_14, 0);
-  lv_obj_set_style_text_color(pathLabel, lv_color_hex(0x78C8F4), 0);
+  lv_obj_set_style_text_font(pathLabel, &terminess_14, 0);
+  lv_obj_set_style_text_color(pathLabel, lv_color_hex(0x89B4FA), 0);
 
   documentLabel = lv_label_create(header);
   lv_obj_set_width(documentLabel, 200);
   lv_label_set_long_mode(documentLabel, LV_LABEL_LONG_DOT);
   lv_obj_set_pos(documentLabel, 70, 10);
   lv_obj_set_style_text_font(documentLabel, &elms_bold_14, 0);
-  lv_obj_set_style_text_color(documentLabel, lv_color_hex(0xD4DFE5), 0);
+  lv_obj_set_style_text_color(documentLabel, lv_color_hex(0xBAC2DE), 0);
   // Text-size pair in the gap between the filename and the power indicator:
   // 30 px buttons at 286 and 320, both clear of the filename's 200 px box
   // (70..270) and the power readout at 374. Clamped, not cyclic.
@@ -6758,7 +6766,7 @@ void buildEditorScreen() {
   makeToolbarButton(header, "A+", 320, 30, editorFontLargerClicked);
   // Same 30 px footprint as the menu button, mirrored into the right corner:
   // 472 (header) - 4 (outer gap) - 1 (border) - 30 (width) = 437.
-  makeToolbarButton(header, ICON_SETTINGS, 437, 30, settingsClicked);
+  makeToolbarButton(header, ICON_SETTINGS, 437, 30, settingsClicked, true);
   // Power indicator, then the Bluetooth shortcut square: the pair sits to the
   // left of the gear in that order. The label is right-aligned inside a 31 px
   // box ending at 405, so "5V" hugs the button (1 px gap) and the widest
@@ -6772,7 +6780,7 @@ void buildEditorScreen() {
   lv_obj_set_style_text_align(powerLabel, LV_TEXT_ALIGN_RIGHT, 0);
   lv_obj_set_pos(powerLabel, 374, 10);
   setUiFont(powerLabel);
-  lv_obj_set_style_text_color(powerLabel, lv_color_hex(0x8DE6B3), 0);
+  lv_obj_set_style_text_color(powerLabel, lv_color_hex(0x96A57E), 0);
   // 28 px tall to match the editor's other header buttons.
   radioLabel = makeBluetoothButton(header, 406, 28);
 
@@ -6781,14 +6789,14 @@ void buildEditorScreen() {
   // the page to the full screen.
   lv_obj_set_size(canvas, SCREEN_W - 8, editorCanvasH());
   lv_obj_set_pos(canvas, 4, editorCanvasY());
-  stylePanel(canvas, lv_color_hex(0x10171C), lv_color_hex(0x2C424B));
+  stylePanel(canvas, lv_color_hex(0x11111B), lv_color_hex(0x313244));
   // Line-number rail shifts text right when the gutter toggle is on; label
   // width shrinks by the same 34 px so LV_LABEL_LONG_CLIP stays at the edge.
   const int textX = editorLineNumbers ? 41 : 7;
   const int textW = editorLineNumbers ? SCREEN_W - 28 - 34 : SCREEN_W - 28;
-  // The 10 px cut's line box is 12 px, which wants a 1 px ink lift instead
-  // of the 2 px used by the 12/14/16 px cuts.
-  const int lineInkLift = editorLineHeight <= 12 ? -1 : -2;
+  // Terminess's line box equals the glyph cell, so its ink already fills the
+  // row; unlike the old Space Mono cuts it needs no lift.
+  const int lineInkLift = 0;
   for (int i = 0; i < editorVisibleLines; ++i) {
     lineLabels[i] = lv_label_create(canvas);
     lv_obj_set_size(lineLabels[i], textW, editorLineHeight);
@@ -6796,12 +6804,11 @@ void buildEditorScreen() {
                    editorTextTop() + i * editorLineHeight);
     lv_label_set_recolor(lineLabels[i], true);
     lv_label_set_long_mode(lineLabels[i], LV_LABEL_LONG_CLIP);
-    lv_obj_set_style_text_color(lineLabels[i], lv_color_hex(0xD4DFE5), 0);
+    lv_obj_set_style_text_color(lineLabels[i], lv_color_hex(0xBAC2DE), 0);
     lv_obj_set_style_text_font(lineLabels[i], editorFont(), 0);
     lv_obj_set_style_pad_left(lineLabels[i], 4, 0);
-    // Lift the glyph ink inside each line (the font's ascent leaves 2 px of
-    // empty space above the ink and 3 px below; the smallest cut has one
-    // less row to spare).
+    // Terminess's line box equals its glyph cell, so the pad stays 0: any
+    // lift would clip the top row of the bitmap.
     lv_obj_set_style_pad_top(lineLabels[i], lineInkLift, 0);
     lv_obj_set_style_pad_bottom(lineLabels[i], 0, 0);
     lv_obj_set_style_radius(lineLabels[i], 2, 0);
@@ -6826,7 +6833,7 @@ void buildEditorScreen() {
       lv_label_set_long_mode(gutterLabels[i], LV_LABEL_LONG_CLIP);
       setUiFont(gutterLabels[i]);
       lv_obj_set_style_text_align(gutterLabels[i], LV_TEXT_ALIGN_RIGHT, 0);
-      lv_obj_set_style_text_color(gutterLabels[i], lv_color_hex(0x71858F), 0);
+      lv_obj_set_style_text_color(gutterLabels[i], lv_color_hex(0x7F849C), 0);
       lv_obj_set_style_pad_top(gutterLabels[i], gutterPad, 0);
     } else {
       gutterLabels[i] = nullptr;
@@ -6859,7 +6866,7 @@ void buildEditorScreen() {
   lv_label_set_recolor(cursorGlyph, false);
   lv_obj_set_size(cursorGlyph, editorGlyphWidth + 4, editorLineHeight);
   lv_obj_set_style_text_font(cursorGlyph, editorFont(), 0);
-  lv_obj_set_style_text_color(cursorGlyph, lv_color_hex(0x17242A), 0);
+  lv_obj_set_style_text_color(cursorGlyph, lv_color_hex(0x181825), 0);
   // No left pad: x is already the caret's text origin, which the block shares.
   // The same ink lift as the band labels puts the reversed glyph exactly on
   // the one it covers.
@@ -6872,15 +6879,15 @@ void buildEditorScreen() {
   // 4 px screen margins, matching the header and text area.
   lv_obj_set_size(statusPanel, SCREEN_W - 8, 25);
   lv_obj_set_pos(statusPanel, 4, 274);
-  stylePanel(statusPanel, lv_color_hex(0x141E24), lv_color_hex(0x2C424B));
+  stylePanel(statusPanel, lv_color_hex(0x181825), lv_color_hex(0x313244));
   modeLabel = lv_label_create(statusPanel);
   // Vertically center the pill inside the 25 px status panel: the pill is
-  // line_height(17) + 1 + 1 padding = 19 px tall, and the panel's content
-  // area is 23 px (25 minus the 1 px borders), so y = (23 - 19) / 2 = 2.
-  lv_obj_set_pos(modeLabel, 4, 2);
-  lv_obj_set_style_text_font(modeLabel, &space_mono_14, 0);
-  lv_obj_set_style_text_color(modeLabel, lv_color_hex(0x10171C), 0);
-  lv_obj_set_style_bg_color(modeLabel, lv_color_hex(0x4CCB8B), 0);
+  // line_height(14) + 1 + 1 padding = 16 px tall, and the panel's content
+  // area is 23 px (25 minus the 1 px borders), so y = (23 - 16) / 2 = 3.
+  lv_obj_set_pos(modeLabel, 4, 3);
+  lv_obj_set_style_text_font(modeLabel, &terminess_14, 0);
+  lv_obj_set_style_text_color(modeLabel, lv_color_hex(0x11111B), 0);
+  lv_obj_set_style_bg_color(modeLabel, lv_color_hex(0x96A57E), 0);
   lv_obj_set_style_bg_opa(modeLabel, LV_OPA_COVER, 0);
   lv_obj_set_style_pad_left(modeLabel, 6, 0);
   lv_obj_set_style_pad_right(modeLabel, 6, 0);
@@ -6901,7 +6908,7 @@ void buildEditorScreen() {
   lv_obj_set_style_anim_speed(statusLabel, 60, 0);
   lv_obj_set_pos(statusLabel, 104, 5);
   setUiFont(statusLabel);
-  lv_obj_set_style_text_color(statusLabel, lv_color_hex(0xA9BAC2), 0);
+  lv_obj_set_style_text_color(statusLabel, lv_color_hex(0xA6ADC8), 0);
   footerLabel = lv_label_create(statusPanel);
   // Right-justified: the line/column (and touch) coordinates hug the
   // panel's right edge, mirroring the top bar's settings button.
@@ -6909,7 +6916,7 @@ void buildEditorScreen() {
   lv_obj_set_style_text_align(footerLabel, LV_TEXT_ALIGN_RIGHT, 0);
   lv_obj_set_pos(footerLabel, 340, 5);
   setUiFont(footerLabel);
-  lv_obj_set_style_text_color(footerLabel, lv_color_hex(0x78C8F4), 0);
+  lv_obj_set_style_text_color(footerLabel, lv_color_hex(0x89B4FA), 0);
 
   // Bottom hint line: keycap chips for the mode-switch keys plus muted
   // captions, refreshed per mode in updateStatusBar(). While a ":" or "/"
@@ -6922,7 +6929,7 @@ void buildEditorScreen() {
   lv_obj_set_width(hintLabel, SCREEN_W - 16);
   lv_label_set_long_mode(hintLabel, LV_LABEL_LONG_DOT);
   setUiFont(hintLabel);
-  lv_obj_set_style_text_color(hintLabel, lv_color_hex(0x71858F), 0);
+  lv_obj_set_style_text_color(hintLabel, lv_color_hex(0x7F849C), 0);
   // Invisible flex row for the chips: left-aligned, vertically centered.
   // Styled transparent rather than lv_obj_remove_style_all(), which trips
   // a deprecation warning inside this LVGL version's own header.
@@ -6979,13 +6986,13 @@ void buildEditorScreen() {
     zenHintLabel = lv_btn_create(lv_scr_act());
     lv_obj_set_size(zenHintLabel, 224, 20);
     lv_obj_align(zenHintLabel, LV_ALIGN_BOTTOM_MID, 0, -2);
-    stylePanel(zenHintLabel, lv_color_hex(0x141E24), lv_color_hex(0x315360));
+    stylePanel(zenHintLabel, lv_color_hex(0x181825), lv_color_hex(0x45475A));
     lv_obj_add_event_cb(zenHintLabel, zenHintClicked, LV_EVENT_CLICKED, nullptr);
     lv_obj_t *hintText = lv_label_create(zenHintLabel);
     lv_label_set_text(hintText, "esc or two-finger tap to exit");
     lv_obj_center(hintText);
     setUiFont(hintText);
-    lv_obj_set_style_text_color(hintText, lv_color_hex(0x8DE6B3), 0);
+    lv_obj_set_style_text_color(hintText, lv_color_hex(0x96A57E), 0);
     zenHintHideMs = millis() + 10000;
   }
 
@@ -7059,7 +7066,7 @@ void renderHelpColumn(const HelpEntry *entries, size_t count, int chipX,
       lv_label_set_text(section, entry.text);
       lv_obj_set_pos(section, chipX, y);
       setUiFont(section);
-      lv_obj_set_style_text_color(section, lv_color_hex(0x8DE6B3), 0);
+      lv_obj_set_style_text_color(section, lv_color_hex(0x96A57E), 0);
       continue;
     }
     lv_obj_t *chip = makeHintKeycap(lv_scr_act(), entry.key);
@@ -7070,7 +7077,7 @@ void renderHelpColumn(const HelpEntry *entries, size_t count, int chipX,
     lv_obj_set_size(desc, descW, lv_font_get_line_height(&elms_bold_12));
     lv_label_set_long_mode(desc, LV_LABEL_LONG_DOT);
     setUiFont(desc);
-    lv_obj_set_style_text_color(desc, lv_color_hex(0xA9BAC2), 0);
+    lv_obj_set_style_text_color(desc, lv_color_hex(0xA6ADC8), 0);
   }
 }
 
@@ -7087,16 +7094,16 @@ void buildHelpScreen() {
   brightnessSlider = smoothSwitch = markdownSwitch = autoSaveSwitch =
       dimSwitch = lineNumberSwitch = wordWrapSwitch = nullptr;
   lv_obj_clear_flag(lv_scr_act(), LV_OBJ_FLAG_SCROLLABLE);
-  lv_obj_set_style_bg_color(lv_scr_act(), lv_color_hex(0x10171C), 0);
+  lv_obj_set_style_bg_color(lv_scr_act(), lv_color_hex(0x11111B), 0);
   lv_obj_t *header = lv_obj_create(lv_scr_act());
   lv_obj_set_size(header, SCREEN_W - 8, 30);
   lv_obj_set_pos(header, 4, 4);
-  stylePanel(header, lv_color_hex(0x141E24), lv_color_hex(0x2C424B));
+  stylePanel(header, lv_color_hex(0x181825), lv_color_hex(0x313244));
   lv_obj_t *heading = lv_label_create(header);
   lv_label_set_text(heading, "VIM COMMANDS — TEXT EDITING");
   lv_obj_set_pos(heading, 10, 4);
   setTitleFont(heading);
-  lv_obj_set_style_text_color(heading, lv_color_hex(0x8DE6B3), 0);
+  lv_obj_set_style_text_color(heading, lv_color_hex(0x96A57E), 0);
   makeButton(header, "BACK", 408, 58, helpBackClicked);
   // 17 rows per column at a 16 px pitch: content spans y 44..316, 8 px
   // clear of the screen bottom. Column A's descriptions start 4 px further
@@ -7123,12 +7130,12 @@ void buildBrowserScreen() {
   brightnessSlider = smoothSwitch = markdownSwitch = autoSaveSwitch =
       dimSwitch = lineNumberSwitch = wordWrapSwitch = nullptr;
   lv_obj_clear_flag(lv_scr_act(), LV_OBJ_FLAG_SCROLLABLE);
-  lv_obj_set_style_bg_color(lv_scr_act(), lv_color_hex(0x10171C), 0);
+  lv_obj_set_style_bg_color(lv_scr_act(), lv_color_hex(0x11111B), 0);
 
   lv_obj_t *header = lv_obj_create(lv_scr_act());
   lv_obj_set_size(header, SCREEN_W - 8, 30);
   lv_obj_set_pos(header, 4, 4);
-  stylePanel(header, lv_color_hex(0x141E24), lv_color_hex(0x2C424B));
+  stylePanel(header, lv_color_hex(0x181825), lv_color_hex(0x313244));
   lv_obj_t *heading = lv_label_create(header);
   // While filtering, the typed query replaces the path: it is the more useful
   // thing to see, and the header stays inside the BACK button.
@@ -7143,20 +7150,20 @@ void buildBrowserScreen() {
   lv_label_set_long_mode(heading, LV_LABEL_LONG_DOT);
   lv_obj_set_pos(heading, 10, 4);
   setTitleFont(heading);
-  lv_obj_set_style_text_color(heading, lv_color_hex(0x8DE6B3), 0);
+  lv_obj_set_style_text_color(heading, lv_color_hex(0x96A57E), 0);
   makeButton(header, "BACK", 347, 58, backClicked);
   makeButton(header, "NEW", 412, 54, newClicked);
 
   browserPanel = lv_obj_create(lv_scr_act());
   lv_obj_set_size(browserPanel, SCREEN_W - 8, 240);
   lv_obj_set_pos(browserPanel, 4, 39);
-  stylePanel(browserPanel, lv_color_hex(0x10171C), lv_color_hex(0x2C424B));
+  stylePanel(browserPanel, lv_color_hex(0x11111B), lv_color_hex(0x313244));
   if (!cardAvailable) {
     lv_obj_t *message = lv_label_create(browserPanel);
     lv_label_set_text(message, "No microSD card detected.\nInsert a card to browse and save documents.");
     lv_obj_set_pos(message, 16, 22);
     setUiFont(message);
-    lv_obj_set_style_text_color(message, lv_color_hex(0xD4DFE5), 0);
+    lv_obj_set_style_text_color(message, lv_color_hex(0xBAC2DE), 0);
   } else if (browserMatches.empty()) {
     lv_obj_t *message = lv_label_create(browserPanel);
     lv_label_set_text(message, browserFilter.empty()
@@ -7164,7 +7171,7 @@ void buildBrowserScreen() {
         : "No files match the filter.");
     lv_obj_set_pos(message, 16, 22);
     setUiFont(message);
-    lv_obj_set_style_text_color(message, lv_color_hex(0xD4DFE5), 0);
+    lv_obj_set_style_text_color(message, lv_color_hex(0xBAC2DE), 0);
   } else {
     const size_t first = browserSelection >= 10 ? browserSelection - 9 : 0;
     const size_t last = std::min(browserMatches.size(), first + 10);
@@ -7174,16 +7181,16 @@ void buildBrowserScreen() {
       browserRowButtons[i - first] = button;
       lv_obj_set_size(button, 442, 20);
       lv_obj_set_pos(button, 8, 7 + static_cast<int>(i - first) * 21);
-      stylePanel(button, i == browserSelection ? lv_color_hex(0x1A2D32)
-                                               : lv_color_hex(0x10171C),
-                 lv_color_hex(0x2C424B));
+      stylePanel(button, i == browserSelection ? lv_color_hex(0x313244)
+                                               : lv_color_hex(0x11111B),
+                 lv_color_hex(0x313244));
       lv_obj_add_event_cb(button, fileClicked, LV_EVENT_CLICKED,
                           reinterpret_cast<void *>(static_cast<intptr_t>(i)));
       lv_obj_t *name = lv_label_create(button);
       lv_label_set_text(name, browserFileName(i).c_str());
       lv_obj_set_pos(name, 7, 2);
       setUiFont(name);
-      lv_obj_set_style_text_color(name, lv_color_hex(0xD4DFE5), 0);
+      lv_obj_set_style_text_color(name, lv_color_hex(0xBAC2DE), 0);
     }
   }
   lv_obj_t *footRow = makeHintRow();
@@ -7213,8 +7220,8 @@ bool refreshBrowserSelection() {
   for (size_t i = 0; i < count; ++i) {
     if (!browserRowButtons[i]) return false;
     lv_obj_set_style_bg_color(browserRowButtons[i],
-        first + i == browserSelection ? lv_color_hex(0x1A2D32)
-                                      : lv_color_hex(0x10171C), 0);
+        first + i == browserSelection ? lv_color_hex(0x313244)
+                                      : lv_color_hex(0x11111B), 0);
   }
   return true;
 }
@@ -7228,7 +7235,7 @@ lv_obj_t *makeValuePill(lv_obj_t *parent, int x, int y, int width,
   lv_obj_t *pill = lv_btn_create(parent);
   lv_obj_set_size(pill, width, 26);
   lv_obj_set_pos(pill, x, y);
-  stylePanel(pill, lv_color_hex(0x18272D), lv_color_hex(0x315360));
+  stylePanel(pill, lv_color_hex(0x1E1E2E), lv_color_hex(0x45475A));
   lv_obj_add_event_cb(pill, [](lv_event_t *) {
     lastInputMs = millis();
     if (backlightDimmed) {
@@ -7241,7 +7248,7 @@ lv_obj_t *makeValuePill(lv_obj_t *parent, int x, int y, int width,
   lv_label_set_text(text, value);
   lv_obj_center(text);
   setUiFont(text);
-  lv_obj_set_style_text_color(text, lv_color_hex(0xE8EEF2), 0);
+  lv_obj_set_style_text_color(text, lv_color_hex(0xCDD6F4), 0);
   return text;
 }
 
@@ -7856,10 +7863,10 @@ void refreshSettingsSectionSelection() {
     if (!paint.row) continue;
     const bool selected = i == settingsSectionSelection;
     lv_obj_set_style_bg_color(paint.row,
-        lv_color_hex(selected ? 0x1A2D32 : 0x18272D), 0);
+        lv_color_hex(selected ? 0x313244 : 0x1E1E2E), 0);
     lv_obj_set_style_border_color(paint.row,
-        lv_color_hex(selected ? 0x4CCB8B : 0x315360), 0);
-    const lv_color_t ink = lv_color_hex(selected ? 0x8DE6B3 : 0xE8EEF2);
+        lv_color_hex(selected ? 0x96A57E : 0x45475A), 0);
+    const lv_color_t ink = lv_color_hex(selected ? 0xB5C39D : 0xCDD6F4);
     if (paint.lead) lv_obj_set_style_text_color(paint.lead, ink, 0);
     if (paint.key) lv_obj_set_style_text_color(paint.key, ink, 0);
     if (paint.tail) lv_obj_set_style_text_color(paint.tail, ink, 0);
@@ -7875,8 +7882,8 @@ lv_obj_t *makeSettingsSectionRow(lv_obj_t *parent, size_t index) {
   // pitch and the height shrink by 5 px to keep the panel scroll-free.
   lv_obj_set_size(row, 444, 28);
   lv_obj_set_pos(row, 14, 12 + static_cast<int>(index) * 31);
-  stylePanel(row, lv_color_hex(selected ? 0x1A2D32 : 0x18272D),
-             lv_color_hex(selected ? 0x4CCB8B : 0x315360));
+  stylePanel(row, lv_color_hex(selected ? 0x313244 : 0x1E1E2E),
+             lv_color_hex(selected ? 0x96A57E : 0x45475A));
   lv_obj_add_event_cb(row, [](lv_event_t *) {
     lastInputMs = millis();
     if (backlightDimmed) {
@@ -7891,7 +7898,7 @@ lv_obj_t *makeSettingsSectionRow(lv_obj_t *parent, size_t index) {
   SettingsSectionPaint &paint = settingsSectionPaint[index];
   paint.row = row;
   makeTrackedShortcutLabel(row, def.before, def.key, def.after, 8, 7,
-                           lv_color_hex(selected ? 0x8DE6B3 : 0xE8EEF2),
+                           lv_color_hex(selected ? 0xB5C39D : 0xCDD6F4),
                            paint.lead, paint.key, paint.tail);
 
   char summary[24];
@@ -7903,7 +7910,7 @@ lv_obj_t *makeSettingsSectionRow(lv_obj_t *parent, size_t index) {
   lv_obj_set_pos(value, 444 - 8 - 150, 7);
   lv_obj_set_style_text_align(value, LV_TEXT_ALIGN_RIGHT, 0);
   setUiFont(value);
-  lv_obj_set_style_text_color(value, lv_color_hex(0x71858F), 0);
+  lv_obj_set_style_text_color(value, lv_color_hex(0x7F849C), 0);
   paint.value = value;
   return row;
 }
@@ -7916,8 +7923,8 @@ lv_obj_t *makeSettingsPopupRow(lv_obj_t *panel, int y, bool selected,
   lv_obj_t *row = lv_btn_create(panel);
   lv_obj_set_size(row, SETTINGS_POPUP_W - 16, height);
   lv_obj_set_pos(row, 8, y);
-  stylePanel(row, lv_color_hex(selected ? 0x1A2D32 : 0x18272D),
-             lv_color_hex(selected ? 0x4CCB8B : 0x315360));
+  stylePanel(row, lv_color_hex(selected ? 0x313244 : 0x1E1E2E),
+             lv_color_hex(selected ? 0x96A57E : 0x45475A));
   lv_obj_add_event_cb(row, [](lv_event_t *) {
     lastInputMs = millis();
     if (backlightDimmed) {
@@ -7937,20 +7944,20 @@ lv_obj_t *makeSettingsPopupSwitch(lv_obj_t *row, bool on, int y) {
   // in the dense 24 px Editor rows, so the row border is never covered.
   lv_obj_set_size(sw, 40, 18);
   lv_obj_set_pos(sw, SETTINGS_POPUP_W - 16 - 6 - 40, y);
-  lv_obj_set_style_bg_color(sw, lv_color_hex(0x18272D), LV_PART_MAIN);
+  lv_obj_set_style_bg_color(sw, lv_color_hex(0x1E1E2E), LV_PART_MAIN);
   lv_obj_set_style_bg_opa(sw, LV_OPA_COVER, LV_PART_MAIN);
-  lv_obj_set_style_border_color(sw, lv_color_hex(0x315360), LV_PART_MAIN);
+  lv_obj_set_style_border_color(sw, lv_color_hex(0x45475A), LV_PART_MAIN);
   lv_obj_set_style_border_width(sw, 1, LV_PART_MAIN);
   lv_obj_set_style_radius(sw, LV_RADIUS_CIRCLE, LV_PART_MAIN);
   lv_obj_set_style_bg_opa(sw, LV_OPA_TRANSP, LV_PART_INDICATOR);
-  lv_obj_set_style_bg_color(sw, lv_color_hex(0x4CCB8B),
+  lv_obj_set_style_bg_color(sw, lv_color_hex(0x96A57E),
                             (uint32_t)LV_STATE_CHECKED | LV_PART_INDICATOR);
   lv_obj_set_style_bg_opa(sw, LV_OPA_COVER,
                           (uint32_t)LV_STATE_CHECKED | LV_PART_INDICATOR);
   lv_obj_set_style_radius(sw, LV_RADIUS_CIRCLE, LV_PART_INDICATOR);
-  lv_obj_set_style_bg_color(sw, lv_color_hex(0xE8EEF2), LV_PART_KNOB);
+  lv_obj_set_style_bg_color(sw, lv_color_hex(0xCDD6F4), LV_PART_KNOB);
   lv_obj_set_style_bg_opa(sw, LV_OPA_COVER, LV_PART_KNOB);
-  lv_obj_set_style_border_color(sw, lv_color_hex(0x2C424B), LV_PART_KNOB);
+  lv_obj_set_style_border_color(sw, lv_color_hex(0x313244), LV_PART_KNOB);
   lv_obj_set_style_border_width(sw, 1, LV_PART_KNOB);
   lv_obj_set_style_radius(sw, LV_RADIUS_CIRCLE, LV_PART_KNOB);
   lv_obj_set_style_pad_all(sw, -2, LV_PART_KNOB);
@@ -7970,7 +7977,7 @@ void buildDisplayPopupBody(lv_obj_t *panel) {
   lv_label_set_text(label, "BACKLIGHT");
   lv_obj_set_pos(label, 12, 38);
   setUiFont(label);
-  lv_obj_set_style_text_color(label, lv_color_hex(0x78C8F4), 0);
+  lv_obj_set_style_text_color(label, lv_color_hex(0x89B4FA), 0);
 
   brightnessSlider = lv_slider_create(panel);
   // 260 wide so the knob's max-value overhang stays clear of the readout.
@@ -7979,18 +7986,18 @@ void buildDisplayPopupBody(lv_obj_t *panel) {
   lv_slider_set_mode(brightnessSlider, LV_SLIDER_MODE_NORMAL);
   lv_slider_set_range(brightnessSlider, BRIGHTNESS_MIN, BRIGHTNESS_MAX);
   lv_slider_set_value(brightnessSlider, brightnessValue, LV_ANIM_OFF);
-  lv_obj_set_style_bg_color(brightnessSlider, lv_color_hex(0x18272D),
+  lv_obj_set_style_bg_color(brightnessSlider, lv_color_hex(0x1E1E2E),
                             LV_PART_MAIN);
-  lv_obj_set_style_border_color(brightnessSlider, lv_color_hex(0x315360),
+  lv_obj_set_style_border_color(brightnessSlider, lv_color_hex(0x45475A),
                                 LV_PART_MAIN);
   lv_obj_set_style_border_width(brightnessSlider, 1, LV_PART_MAIN);
   lv_obj_set_style_radius(brightnessSlider, 3, LV_PART_MAIN);
-  lv_obj_set_style_bg_color(brightnessSlider, lv_color_hex(0x4CCB8B),
+  lv_obj_set_style_bg_color(brightnessSlider, lv_color_hex(0x96A57E),
                             LV_PART_INDICATOR);
   lv_obj_set_style_radius(brightnessSlider, 3, LV_PART_INDICATOR);
-  lv_obj_set_style_bg_color(brightnessSlider, lv_color_hex(0xE8EEF2),
+  lv_obj_set_style_bg_color(brightnessSlider, lv_color_hex(0xCDD6F4),
                             LV_PART_KNOB);
-  lv_obj_set_style_border_color(brightnessSlider, lv_color_hex(0x2C424B),
+  lv_obj_set_style_border_color(brightnessSlider, lv_color_hex(0x313244),
                                 LV_PART_KNOB);
   lv_obj_set_style_border_width(brightnessSlider, 1, LV_PART_KNOB);
   lv_obj_set_style_pad_all(brightnessSlider, 3, LV_PART_KNOB);
@@ -8005,13 +8012,13 @@ void buildDisplayPopupBody(lv_obj_t *panel) {
   lv_label_set_text(brightnessStatusLabel, pct);
   lv_obj_set_pos(brightnessStatusLabel, 286, 61);
   setUiFont(brightnessStatusLabel);
-  lv_obj_set_style_text_color(brightnessStatusLabel, lv_color_hex(0xE8EEF2), 0);
+  lv_obj_set_style_text_color(brightnessStatusLabel, lv_color_hex(0xCDD6F4), 0);
 
   lv_obj_t *hint = lv_label_create(panel);
   lv_label_set_text(hint, "1-4 presets    ←/→ fine");
   lv_obj_set_pos(hint, 12, 92);
   setUiFont(hint);
-  lv_obj_set_style_text_color(hint, lv_color_hex(0x71858F), 0);
+  lv_obj_set_style_text_color(hint, lv_color_hex(0x7F849C), 0);
 }
 
 // One popup panel over the section list. File Type keeps its language rows;
@@ -8046,13 +8053,13 @@ void buildSettingsPopup() {
   settingsPopupPanel = panel;
   lv_obj_set_size(panel, SETTINGS_POPUP_W, panelH);
   lv_obj_set_pos(panel, SETTINGS_POPUP_X, SETTINGS_POPUP_Y);
-  stylePanel(panel, lv_color_hex(0x141E24), lv_color_hex(0x315360));
+  stylePanel(panel, lv_color_hex(0x181825), lv_color_hex(0x45475A));
 
   lv_obj_t *title = lv_label_create(panel);
   lv_label_set_text(title, settingsSectionTitle(section));
   lv_obj_set_pos(title, 10, 5);
   setTitleFont(title);
-  lv_obj_set_style_text_color(title, lv_color_hex(0x8DE6B3), 0);
+  lv_obj_set_style_text_color(title, lv_color_hex(0x96A57E), 0);
   makeButton(panel, "CLOSE", SETTINGS_POPUP_W - 68, 60,
              closeSettingsPopupClicked);
 
@@ -8062,8 +8069,8 @@ void buildSettingsPopup() {
       lv_obj_set_size(row, SETTINGS_POPUP_W - 16, 21);
       lv_obj_set_pos(row, 8, 32 + static_cast<int>(i) * 22);
       const bool selected = i == settingsPopupSelection;
-      stylePanel(row, lv_color_hex(selected ? 0x1A2D32 : 0x18272D),
-                 lv_color_hex(selected ? 0x4CCB8B : 0x315360));
+      stylePanel(row, lv_color_hex(selected ? 0x313244 : 0x1E1E2E),
+                 lv_color_hex(selected ? 0x96A57E : 0x45475A));
       lv_obj_add_event_cb(row, [](lv_event_t *) {
         lastInputMs = millis();
         if (backlightDimmed) {
@@ -8079,7 +8086,7 @@ void buildSettingsPopup() {
       lv_obj_set_pos(name, 9, 3);
       setUiFont(name);
       lv_obj_set_style_text_color(name,
-          lv_color_hex(selected ? 0x8DE6B3 : 0xE8EEF2), 0);
+          lv_color_hex(selected ? 0xB5C39D : 0xCDD6F4), 0);
 
       lv_obj_t *hint = lv_label_create(row);
       lv_label_set_text(hint, LANG_ENTRIES[i].hint);
@@ -8087,7 +8094,7 @@ void buildSettingsPopup() {
       lv_obj_set_pos(hint, SETTINGS_POPUP_W - 16 - 9 - 150, 3);
       lv_obj_set_style_text_align(hint, LV_TEXT_ALIGN_RIGHT, 0);
       setUiFont(hint);
-      lv_obj_set_style_text_color(hint, lv_color_hex(0x71858F), 0);
+      lv_obj_set_style_text_color(hint, lv_color_hex(0x7F849C), 0);
     }
     return;
   }
@@ -8117,7 +8124,7 @@ void buildSettingsPopup() {
     lv_obj_set_pos(settingsRadioLabel, 12, 34);
     setUiFont(settingsRadioLabel);
     lv_obj_set_style_text_color(settingsRadioLabel,
-        keyboardIsConnected() ? lv_color_hex(0x8DE6B3) : lv_color_hex(0xD4DFE5),
+        keyboardIsConnected() ? lv_color_hex(0x96A57E) : lv_color_hex(0xBAC2DE),
         0);
     rowTop = 58;
   }
@@ -8137,7 +8144,7 @@ void buildSettingsPopup() {
         panel, rowTop + static_cast<int>(i) * pitch, selected, rowH);
     makeShortcutLabel(row, rows[i].before, rows[i].key, rows[i].after, 6,
                       labelY,
-                      lv_color_hex(selected ? 0x8DE6B3 : 0xD4DFE5));
+                      lv_color_hex(selected ? 0xB5C39D : 0xBAC2DE));
 
     const intptr_t code = (static_cast<intptr_t>(section) << 8) |
                           static_cast<intptr_t>(i);
@@ -8158,7 +8165,7 @@ void buildSettingsPopup() {
       lv_obj_set_pos(value, (SETTINGS_POPUP_W - 16) - 6 - 150, labelY);
       lv_obj_set_style_text_align(value, LV_TEXT_ALIGN_RIGHT, 0);
       setUiFont(value);
-      lv_obj_set_style_text_color(value, lv_color_hex(0x71858F), 0);
+      lv_obj_set_style_text_color(value, lv_color_hex(0x7F849C), 0);
       lv_obj_add_event_cb(row, settingsRowTapped, LV_EVENT_CLICKED,
                           reinterpret_cast<void *>(code));
     }
@@ -8203,23 +8210,23 @@ void buildSettingsScreen() {
     settingsPopupSwitches[i] = nullptr;
   }
   lv_obj_clear_flag(lv_scr_act(), LV_OBJ_FLAG_SCROLLABLE);
-  lv_obj_set_style_bg_color(lv_scr_act(), lv_color_hex(0x10171C), 0);
+  lv_obj_set_style_bg_color(lv_scr_act(), lv_color_hex(0x11111B), 0);
 
   lv_obj_t *header = lv_obj_create(lv_scr_act());
   lv_obj_set_size(header, SCREEN_W - 8, 30);
   lv_obj_set_pos(header, 4, 4);
-  stylePanel(header, lv_color_hex(0x141E24), lv_color_hex(0x2C424B));
+  stylePanel(header, lv_color_hex(0x181825), lv_color_hex(0x313244));
   lv_obj_t *heading = lv_label_create(header);
   lv_label_set_text(heading, "SETTINGS");
   lv_obj_set_pos(heading, 10, 4);
   setTitleFont(heading);
-  lv_obj_set_style_text_color(heading, lv_color_hex(0x8DE6B3), 0);
+  lv_obj_set_style_text_color(heading, lv_color_hex(0x96A57E), 0);
   makeButton(header, "BACK", 412, 54, settingsBackClicked);
 
   lv_obj_t *panel = lv_obj_create(lv_scr_act());
   lv_obj_set_size(panel, SCREEN_W - 8, 240);
   lv_obj_set_pos(panel, 4, 39);
-  stylePanel(panel, lv_color_hex(0x10171C), lv_color_hex(0x2C424B));
+  stylePanel(panel, lv_color_hex(0x11111B), lv_color_hex(0x313244));
 
   // Section list: seven 28 px rows at a 31 px pitch. Each row's summary (the
   // live brightness, text size, language, pairing state or lock state) keeps
@@ -8279,7 +8286,7 @@ void buildWifiScreen() {
       dimSwitch = lineNumberSwitch = wordWrapSwitch = nullptr;
   wifiNameValueLabel = wifiPasswordValueLabel = nullptr;
   lv_obj_clear_flag(lv_scr_act(), LV_OBJ_FLAG_SCROLLABLE);
-  lv_obj_set_style_bg_color(lv_scr_act(), lv_color_hex(0x10171C), 0);
+  lv_obj_set_style_bg_color(lv_scr_act(), lv_color_hex(0x11111B), 0);
 
   const bool editingName = wifiEditingField == WifiField::Name;
   const bool editingPassword = wifiEditingField == WifiField::Password;
@@ -8287,18 +8294,18 @@ void buildWifiScreen() {
   lv_obj_t *header = lv_obj_create(lv_scr_act());
   lv_obj_set_size(header, SCREEN_W - 8, 30);
   lv_obj_set_pos(header, 4, 4);
-  stylePanel(header, lv_color_hex(0x141E24), lv_color_hex(0x2C424B));
+  stylePanel(header, lv_color_hex(0x181825), lv_color_hex(0x313244));
   lv_obj_t *heading = lv_label_create(header);
   lv_label_set_text(heading, "WI-FI SHARE");
   lv_obj_set_pos(heading, 10, 4);
   setTitleFont(heading);
-  lv_obj_set_style_text_color(heading, lv_color_hex(0x8DE6B3), 0);
+  lv_obj_set_style_text_color(heading, lv_color_hex(0x96A57E), 0);
   makeButton(header, "BACK", 412, 54, backClicked);
 
   lv_obj_t *panel = lv_obj_create(lv_scr_act());
   lv_obj_set_size(panel, SCREEN_W - 8, 240);
   lv_obj_set_pos(panel, 4, 39);
-  stylePanel(panel, lv_color_hex(0x10171C), lv_color_hex(0x2C424B));
+  stylePanel(panel, lv_color_hex(0x11111B), lv_color_hex(0x313244));
 
   // Toggle row. labelX=14 puts "Share over Wi-Fi" at the panel's left edge.
   makeToggleRow(panel, "", 'S', "hare over Wi-Fi", 10, transferEnabled,
@@ -8309,13 +8316,13 @@ void buildWifiScreen() {
   lv_label_set_text(nameTitle, "HOTSPOT NAME");
   lv_obj_set_pos(nameTitle, 14, 52);
   setUiFont(nameTitle);
-  lv_obj_set_style_text_color(nameTitle, lv_color_hex(0x78C8F4), 0);
+  lv_obj_set_style_text_color(nameTitle, lv_color_hex(0x89B4FA), 0);
 
   lv_obj_t *nameField = lv_obj_create(panel);
   lv_obj_set_size(nameField, 444, 32);
   lv_obj_set_pos(nameField, 14, 70);
-  stylePanel(nameField, lv_color_hex(0x18272D),
-             lv_color_hex(editingName ? 0x8DE6B3 : 0x315360));
+  stylePanel(nameField, lv_color_hex(0x1E1E2E),
+             lv_color_hex(editingName ? 0x96A57E : 0x45475A));
   lv_obj_add_event_cb(nameField, wifiNameFieldClicked, LV_EVENT_CLICKED,
                       nullptr);
   lv_obj_t *nameValue = lv_label_create(nameField);
@@ -8328,8 +8335,8 @@ void buildWifiScreen() {
   lv_obj_set_pos(nameValue, 10, 8);
   lv_obj_set_style_text_font(nameValue, &elms_bold_16, 0);
   lv_obj_set_style_text_color(nameValue,
-      lv_color_hex(transferEnabled ? 0x71858F
-                   : (editingName ? 0x8DE6B3 : 0xE8EEF2)), 0);
+      lv_color_hex(transferEnabled ? 0x7F849C
+                   : (editingName ? 0x96A57E : 0xCDD6F4)), 0);
   wifiNameValueLabel = nameValue;
 
   // Password: editable while off (WPA2 needs 8..63 chars), locked while on.
@@ -8337,13 +8344,13 @@ void buildWifiScreen() {
   lv_label_set_text(passTitle, "PASSWORD");
   lv_obj_set_pos(passTitle, 14, 112);
   setUiFont(passTitle);
-  lv_obj_set_style_text_color(passTitle, lv_color_hex(0x78C8F4), 0);
+  lv_obj_set_style_text_color(passTitle, lv_color_hex(0x89B4FA), 0);
 
   lv_obj_t *passField = lv_obj_create(panel);
   lv_obj_set_size(passField, 444, 32);
   lv_obj_set_pos(passField, 14, 130);
-  stylePanel(passField, lv_color_hex(0x18272D),
-             lv_color_hex(editingPassword ? 0x8DE6B3 : 0x315360));
+  stylePanel(passField, lv_color_hex(0x1E1E2E),
+             lv_color_hex(editingPassword ? 0x96A57E : 0x45475A));
   lv_obj_add_event_cb(passField, wifiPasswordFieldClicked, LV_EVENT_CLICKED,
                       nullptr);
   lv_obj_t *passValue = lv_label_create(passField);
@@ -8357,8 +8364,8 @@ void buildWifiScreen() {
   lv_obj_set_pos(passValue, 10, 8);
   lv_obj_set_style_text_font(passValue, &elms_bold_16, 0);
   lv_obj_set_style_text_color(passValue,
-      lv_color_hex(transferEnabled ? 0x71858F
-                   : (editingPassword ? 0x8DE6B3 : 0xE8EEF2)), 0);
+      lv_color_hex(transferEnabled ? 0x7F849C
+                   : (editingPassword ? 0x96A57E : 0xCDD6F4)), 0);
   wifiPasswordValueLabel = passValue;
 
   // Address block, or a hint why sharing cannot start.
@@ -8369,23 +8376,23 @@ void buildWifiScreen() {
     lv_label_set_text(connectTitle, "CONNECT TO");
     lv_obj_set_pos(connectTitle, 14, 174);
     setUiFont(connectTitle);
-    lv_obj_set_style_text_color(connectTitle, lv_color_hex(0x78C8F4), 0);
+    lv_obj_set_style_text_color(connectTitle, lv_color_hex(0x89B4FA), 0);
     lv_obj_t *urlLabel = lv_label_create(panel);
     lv_label_set_text(urlLabel, url);
     lv_obj_set_pos(urlLabel, 14, 192);
     setTitleFont(urlLabel);
-    lv_obj_set_style_text_color(urlLabel, lv_color_hex(0x8DE6B3), 0);
+    lv_obj_set_style_text_color(urlLabel, lv_color_hex(0x96A57E), 0);
     lv_obj_t *note = lv_label_create(panel);
     lv_label_set_text(note, "Open this address in a browser");
     lv_obj_set_pos(note, 14, 214);
     setUiFont(note);
-    lv_obj_set_style_text_color(note, lv_color_hex(0x71858F), 0);
+    lv_obj_set_style_text_color(note, lv_color_hex(0x7F849C), 0);
   } else if (!cardAvailable) {
     lv_obj_t *warning = lv_label_create(panel);
     lv_label_set_text(warning, "Insert an SD card to share files");
     lv_obj_set_pos(warning, 14, 184);
     setUiFont(warning);
-    lv_obj_set_style_text_color(warning, lv_color_hex(0xE06C75), 0);
+    lv_obj_set_style_text_color(warning, lv_color_hex(0xF38BA8), 0);
   } else {
     lv_obj_t *idle = lv_label_create(panel);
     lv_label_set_text(idle,
@@ -8394,7 +8401,7 @@ void buildWifiScreen() {
         : "Turn on sharing to get the address");
     lv_obj_set_pos(idle, 14, 184);
     setUiFont(idle);
-    lv_obj_set_style_text_color(idle, lv_color_hex(0x71858F), 0);
+    lv_obj_set_style_text_color(idle, lv_color_hex(0x7F849C), 0);
   }
 
   // Footer hints follow the mode.
@@ -8429,31 +8436,31 @@ void buildPairingScreen() {
   brightnessSlider = smoothSwitch = markdownSwitch = autoSaveSwitch =
       dimSwitch = lineNumberSwitch = wordWrapSwitch = nullptr;
   lv_obj_clear_flag(lv_scr_act(), LV_OBJ_FLAG_SCROLLABLE);
-  lv_obj_set_style_bg_color(lv_scr_act(), lv_color_hex(0x10171C), 0);
+  lv_obj_set_style_bg_color(lv_scr_act(), lv_color_hex(0x11111B), 0);
 
   lv_obj_t *header = lv_obj_create(lv_scr_act());
   lv_obj_set_size(header, SCREEN_W - 8, 30);
   lv_obj_set_pos(header, 4, 4);
-  stylePanel(header, lv_color_hex(0x141E24), lv_color_hex(0x2C424B));
+  stylePanel(header, lv_color_hex(0x181825), lv_color_hex(0x313244));
   lv_obj_t *heading = lv_label_create(header);
   lv_label_set_text(heading, "BLE KEYBOARDS");
   lv_obj_set_pos(heading, 10, 4);
   setTitleFont(heading);
-  lv_obj_set_style_text_color(heading, lv_color_hex(0x8DE6B3), 0);
+  lv_obj_set_style_text_color(heading, lv_color_hex(0x96A57E), 0);
   makeButton(header, "RESCAN", 327, 76, rescanKeyboardsClicked);
   makeButton(header, "BACK", 412, 54, backFromPairing);
 
   lv_obj_t *panel = lv_obj_create(lv_scr_act());
   lv_obj_set_size(panel, SCREEN_W - 8, 240);
   lv_obj_set_pos(panel, 4, 39);
-  stylePanel(panel, lv_color_hex(0x10171C), lv_color_hex(0x2C424B));
+  stylePanel(panel, lv_color_hex(0x11111B), lv_color_hex(0x313244));
   pairingStatusLabel = lv_label_create(panel);
   lv_obj_set_width(pairingStatusLabel, 442);
   lv_label_set_long_mode(pairingStatusLabel, LV_LABEL_LONG_DOT);
   lv_label_set_text(pairingStatusLabel, keyboardStatus());
   lv_obj_set_pos(pairingStatusLabel, 14, 8);
   setUiFont(pairingStatusLabel);
-  lv_obj_set_style_text_color(pairingStatusLabel, lv_color_hex(0xD4DFE5), 0);
+  lv_obj_set_style_text_color(pairingStatusLabel, lv_color_hex(0xBAC2DE), 0);
 
   const size_t count = keyboardCandidateCount();
   pairListRenderedCount = count;
@@ -8464,7 +8471,7 @@ void buildPairingScreen() {
                              "Scanning is automatic; tap RESCAN to search again.");
     lv_obj_set_pos(empty, 14, 45);
     setUiFont(empty);
-    lv_obj_set_style_text_color(empty, lv_color_hex(0xA9BAC2), 0);
+    lv_obj_set_style_text_color(empty, lv_color_hex(0xA6ADC8), 0);
   } else {
     const size_t first = pairSelection >= 6 ? pairSelection - 5 : 0;
     const size_t last = std::min(count, first + 6);
@@ -8475,9 +8482,9 @@ void buildPairingScreen() {
           keyboardCandidateClicked,
           reinterpret_cast<void *>(static_cast<intptr_t>(i)));
       lv_obj_set_style_bg_color(button,
-          i == pairSelection ? lv_color_hex(0x1A2D32) : lv_color_hex(0x18272D), 0);
+          i == pairSelection ? lv_color_hex(0x313244) : lv_color_hex(0x1E1E2E), 0);
       lv_obj_set_style_border_color(button,
-          i == pairSelection ? lv_color_hex(0x4CCB8B) : lv_color_hex(0x315360), 0);
+          i == pairSelection ? lv_color_hex(0x96A57E) : lv_color_hex(0x45475A), 0);
     }
   }
 
@@ -8837,7 +8844,7 @@ void previewMaterialize() {
       // consecutive lines join with no seam.
       if (code) {
         lv_obj_set_height(label, blk.height);
-        lv_obj_set_style_bg_color(label, lv_color_hex(0x141E24), 0);
+        lv_obj_set_style_bg_color(label, lv_color_hex(0x181825), 0);
         lv_obj_set_style_bg_opa(label, LV_OPA_COVER, 0);
         lv_obj_set_style_pad_top(label, 2, 0);
       } else {
@@ -8886,12 +8893,12 @@ void buildPreviewScreen() {
   brightnessSlider = smoothSwitch = markdownSwitch = autoSaveSwitch =
       dimSwitch = lineNumberSwitch = wordWrapSwitch = nullptr;
   lv_obj_clear_flag(lv_scr_act(), LV_OBJ_FLAG_SCROLLABLE);
-  lv_obj_set_style_bg_color(lv_scr_act(), lv_color_hex(0x10171C), 0);
+  lv_obj_set_style_bg_color(lv_scr_act(), lv_color_hex(0x11111B), 0);
 
   lv_obj_t *header = lv_obj_create(lv_scr_act());
   lv_obj_set_size(header, SCREEN_W - 8, 30);
   lv_obj_set_pos(header, 4, 4);
-  stylePanel(header, lv_color_hex(0x141E24), lv_color_hex(0x2C424B));
+  stylePanel(header, lv_color_hex(0x181825), lv_color_hex(0x313244));
   lv_obj_t *title = lv_label_create(header);
   std::string heading = previewTruncated
       ? "PREVIEW — " + fileName + " (TRUNCATED)"
@@ -8899,13 +8906,13 @@ void buildPreviewScreen() {
   lv_label_set_text(title, heading.c_str());
   lv_obj_set_pos(title, 10, 4);
   setTitleFont(title);
-  lv_obj_set_style_text_color(title, lv_color_hex(0x8DE6B3), 0);
+  lv_obj_set_style_text_color(title, lv_color_hex(0x96A57E), 0);
   makeButton(header, "BACK", 408, 58, previewBackClicked);
 
   lv_obj_t *panel = lv_obj_create(lv_scr_act());
   lv_obj_set_size(panel, SCREEN_W - 8, PREVIEW_VIEW_H);
   lv_obj_set_pos(panel, 4, 39);
-  stylePanel(panel, lv_color_hex(0x10171C), lv_color_hex(0x2C424B));
+  stylePanel(panel, lv_color_hex(0x11111B), lv_color_hex(0x313244));
   lv_obj_set_style_pad_all(panel, 0, 0);
   lv_obj_clear_flag(panel, LV_OBJ_FLAG_SCROLLABLE);
   for (size_t i = 0; i < PREVIEW_POOL_LABELS; ++i) {
@@ -8920,7 +8927,7 @@ void buildPreviewScreen() {
   lv_label_set_text(foot, "j/k or arrows scroll · pgup/pgdn page · q back");
   lv_obj_set_pos(foot, 10, 284);
   setUiFont(foot);
-  lv_obj_set_style_text_color(foot, lv_color_hex(0x71858F), 0);
+  lv_obj_set_style_text_color(foot, lv_color_hex(0x7F849C), 0);
   previewMaterialize();
 }
 
@@ -9055,23 +9062,23 @@ void buildHistoryScreen() {
   brightnessSlider = smoothSwitch = markdownSwitch = autoSaveSwitch =
       dimSwitch = lineNumberSwitch = wordWrapSwitch = nullptr;
   lv_obj_clear_flag(lv_scr_act(), LV_OBJ_FLAG_SCROLLABLE);
-  lv_obj_set_style_bg_color(lv_scr_act(), lv_color_hex(0x10171C), 0);
+  lv_obj_set_style_bg_color(lv_scr_act(), lv_color_hex(0x11111B), 0);
 
   lv_obj_t *header = lv_obj_create(lv_scr_act());
   lv_obj_set_size(header, SCREEN_W - 8, 30);
   lv_obj_set_pos(header, 4, 4);
-  stylePanel(header, lv_color_hex(0x141E24), lv_color_hex(0x2C424B));
+  stylePanel(header, lv_color_hex(0x181825), lv_color_hex(0x313244));
   lv_obj_t *heading = lv_label_create(header);
   lv_label_set_text(heading, "VERSION HISTORY");
   lv_obj_set_pos(heading, 10, 4);
   setTitleFont(heading);
-  lv_obj_set_style_text_color(heading, lv_color_hex(0x8DE6B3), 0);
+  lv_obj_set_style_text_color(heading, lv_color_hex(0x96A57E), 0);
   makeButton(header, "BACK", 412, 54, historyBackClicked);
 
   lv_obj_t *panel = lv_obj_create(lv_scr_act());
   lv_obj_set_size(panel, SCREEN_W - 8, 240);
   lv_obj_set_pos(panel, 4, 39);
-  stylePanel(panel, lv_color_hex(0x10171C), lv_color_hex(0x2C424B));
+  stylePanel(panel, lv_color_hex(0x11111B), lv_color_hex(0x313244));
 
   if (historySelection >= historyFiles.size()) historySelection = 0;
   for (size_t i = 0; i < historyFiles.size() && i < 10; ++i) {
@@ -9079,8 +9086,8 @@ void buildHistoryScreen() {
     lv_obj_t *row = lv_btn_create(panel);
     lv_obj_set_size(row, 444, 20);
     lv_obj_set_pos(row, 14, 14 + static_cast<int>(i) * 22);
-    stylePanel(row, lv_color_hex(selected ? 0x1A2D32 : 0x18272D),
-               lv_color_hex(selected ? 0x4CCB8B : 0x315360));
+    stylePanel(row, lv_color_hex(selected ? 0x313244 : 0x1E1E2E),
+               lv_color_hex(selected ? 0x96A57E : 0x45475A));
     lv_obj_add_event_cb(row, [](lv_event_t *) {
       lastInputMs = millis();
       if (screenOff) {
@@ -9106,7 +9113,7 @@ void buildHistoryScreen() {
     lv_obj_set_pos(nameLabel, 9, 3);
     setUiFont(nameLabel);
     lv_obj_set_style_text_color(nameLabel,
-        lv_color_hex(selected ? 0x8DE6B3 : 0xE8EEF2), 0);
+        lv_color_hex(selected ? 0xB5C39D : 0xCDD6F4), 0);
 
     lv_obj_t *hint = lv_label_create(row);
     lv_label_set_text(hint, "restore");
@@ -9114,7 +9121,7 @@ void buildHistoryScreen() {
     lv_obj_set_pos(hint, 444 - 9 - 90, 3);
     lv_obj_set_style_text_align(hint, LV_TEXT_ALIGN_RIGHT, 0);
     setUiFont(hint);
-    lv_obj_set_style_text_color(hint, lv_color_hex(0x71858F), 0);
+    lv_obj_set_style_text_color(hint, lv_color_hex(0x7F849C), 0);
   }
 
   lv_obj_t *footRow = makeHintRow();
@@ -10022,16 +10029,16 @@ void updateStatusBar() {
   // The Bluetooth shortcut's glyph never changes; only its tint tracks the
   // keyboard state (set text every second would just churn the label heap).
   lv_obj_set_style_text_color(radioLabel,
-      connected ? lv_color_hex(0x8DE6B3) : lv_color_hex(0x78C8F4), 0);
+      connected ? lv_color_hex(0x96A57E) : lv_color_hex(0x89B4FA), 0);
   const char *modeText;
   uint32_t modeBg;
-  if (insertMode) { modeText = "INSERT"; modeBg = 0x78C8F4; }
-  else if (visualMode) { modeText = "VISUAL"; modeBg = 0xC792EA; }
+  if (insertMode) { modeText = "INSERT"; modeBg = 0x89B4FA; }
+  else if (visualMode) { modeText = "VISUAL"; modeBg = 0xCBA6F7; }
   else if (commandMode || searchMode) {
     modeText = commandMode ? "COMMAND" : "SEARCH";
-    modeBg = 0xFFD866;
+    modeBg = 0xF9E2AF;
   }
-  else { modeText = "NORMAL"; modeBg = 0x4CCB8B; }
+  else { modeText = "NORMAL"; modeBg = 0x96A57E; }
   labelSetTextIfChanged(modeLabel, modeText);
   lv_obj_set_style_bg_color(modeLabel, lv_color_hex(modeBg), 0);
   // Bottom hint line: keycap chips "i input  v visual  : commands  ? help"
@@ -10052,7 +10059,7 @@ void updateStatusBar() {
       snprintf(hint, sizeof(hint), "find: %s", commandLine.c_str());
     }
     labelSetTextIfChanged(hintLabel, hint);
-    lv_obj_set_style_text_color(hintLabel, lv_color_hex(0xFFD866), 0);
+    lv_obj_set_style_text_color(hintLabel, lv_color_hex(0xF9E2AF), 0);
   }
   setWidgetHidden(hintLabel, !commandHint);
   setWidgetHidden(hintKeyI, !switchHint);
@@ -10116,7 +10123,7 @@ void updateStatusBar() {
   if (settingsRadioLabel) {
     labelSetTextIfChanged(settingsRadioLabel, keyboardShortStatus());
     lv_obj_set_style_text_color(settingsRadioLabel,
-        connected ? lv_color_hex(0x8DE6B3) : lv_color_hex(0xD4DFE5), 0);
+        connected ? lv_color_hex(0x96A57E) : lv_color_hex(0xBAC2DE), 0);
   }
 }
 
@@ -10249,7 +10256,7 @@ void lockSetMessage(const char *text, bool error) {
   if (!lockMessageLabel) return;
   lv_label_set_text(lockMessageLabel, text);
   lv_obj_set_style_text_color(lockMessageLabel,
-      lv_color_hex(error ? 0xF08C7A : 0x71858F), 0);
+      lv_color_hex(error ? 0xF38BA8 : 0x7F849C), 0);
 }
 
 void lockRefreshField() {
@@ -10297,17 +10304,17 @@ void lockRefreshKeypad() {
     }
     lv_label_set_text(label, text);
     lv_obj_set_style_text_font(label,
-        special ? &elms_bold_12 : &space_mono_16, 0);
+        special ? &elms_bold_12 : &terminess_16, 0);
     lv_obj_set_style_text_color(label,
-        lv_color_hex(special ? 0x78C8F4 : 0xE8EEF2), 0);
+        lv_color_hex(special ? 0x89B4FA : 0xCDD6F4), 0);
     if (lockKeys[i]) {
       const bool active =
           (def.action == LockKeyAction::Shift && lockShift) ||
           (def.action == LockKeyAction::Symbols && lockSymbols);
       lv_obj_set_style_bg_color(lockKeys[i],
-          lv_color_hex(active ? 0x1A2D32 : 0x18272D), 0);
+          lv_color_hex(active ? 0x313244 : 0x1E1E2E), 0);
       lv_obj_set_style_border_color(lockKeys[i],
-          lv_color_hex(active ? 0x4CCB8B : 0x315360), 0);
+          lv_color_hex(active ? 0x96A57E : 0x45475A), 0);
     }
   }
 }
@@ -10505,7 +10512,7 @@ void buildLockScreen() {
     lockKeys[i] = lockKeyLabels[i] = nullptr;
   }
   lv_obj_clear_flag(lv_scr_act(), LV_OBJ_FLAG_SCROLLABLE);
-  lv_obj_set_style_bg_color(lv_scr_act(), lv_color_hex(0x10171C), 0);
+  lv_obj_set_style_bg_color(lv_scr_act(), lv_color_hex(0x11111B), 0);
 
   const char *title = "";
   const char *hint = "";
@@ -10534,14 +10541,14 @@ void buildLockScreen() {
   lv_obj_set_size(shackle, 30, 30);
   lv_obj_set_pos(shackle, (SCREEN_W - 30) / 2, 12);
   lv_obj_set_style_bg_opa(shackle, LV_OPA_TRANSP, 0);
-  lv_obj_set_style_border_color(shackle, lv_color_hex(0x4CCB8B), 0);
+  lv_obj_set_style_border_color(shackle, lv_color_hex(0x96A57E), 0);
   lv_obj_set_style_border_width(shackle, 2, 0);
   lv_obj_set_style_radius(shackle, 15, 0);
   lv_obj_clear_flag(shackle, LV_OBJ_FLAG_SCROLLABLE);
   lv_obj_t *body = lv_obj_create(lv_scr_act());
   lv_obj_set_size(body, 44, 28);
   lv_obj_set_pos(body, (SCREEN_W - 44) / 2, 30);
-  stylePanel(body, lv_color_hex(0x18272D), lv_color_hex(0x4CCB8B));
+  stylePanel(body, lv_color_hex(0x1E1E2E), lv_color_hex(0x96A57E));
   lv_obj_clear_flag(body, LV_OBJ_FLAG_SCROLLABLE);
 
   lv_obj_t *heading = lv_label_create(lv_scr_act());
@@ -10550,20 +10557,20 @@ void buildLockScreen() {
   lv_obj_set_width(heading, SCREEN_W - 20);
   lv_obj_set_pos(heading, 10, 68);
   lv_obj_set_style_text_align(heading, LV_TEXT_ALIGN_CENTER, 0);
-  lv_obj_set_style_text_color(heading, lv_color_hex(0x8DE6B3), 0);
+  lv_obj_set_style_text_color(heading, lv_color_hex(0x96A57E), 0);
 
   lockFieldLabel = lv_label_create(lv_scr_act());
   lv_label_set_text(lockFieldLabel, "");
   lv_obj_set_width(lockFieldLabel, 300);
   lv_obj_set_pos(lockFieldLabel, (SCREEN_W - 300) / 2, 96);
   lv_obj_set_style_text_align(lockFieldLabel, LV_TEXT_ALIGN_CENTER, 0);
-  lv_obj_set_style_text_font(lockFieldLabel, &space_mono_16, 0);
-  lv_obj_set_style_text_color(lockFieldLabel, lv_color_hex(0xE8EEF2), 0);
+  lv_obj_set_style_text_font(lockFieldLabel, &terminess_16, 0);
+  lv_obj_set_style_text_color(lockFieldLabel, lv_color_hex(0xCDD6F4), 0);
 
   lv_obj_t *underline = lv_obj_create(lv_scr_act());
   lv_obj_set_size(underline, 200, 1);
   lv_obj_set_pos(underline, (SCREEN_W - 200) / 2, 120);
-  lv_obj_set_style_bg_color(underline, lv_color_hex(0x315360), 0);
+  lv_obj_set_style_bg_color(underline, lv_color_hex(0x45475A), 0);
   lv_obj_set_style_bg_opa(underline, LV_OPA_COVER, 0);
   lv_obj_set_style_border_width(underline, 0, 0);
   lv_obj_clear_flag(underline, LV_OBJ_FLAG_SCROLLABLE);
@@ -10574,7 +10581,7 @@ void buildLockScreen() {
   lv_obj_set_width(lockHintLabel, SCREEN_W - 20);
   lv_obj_set_pos(lockHintLabel, 10, 126);
   lv_obj_set_style_text_align(lockHintLabel, LV_TEXT_ALIGN_CENTER, 0);
-  lv_obj_set_style_text_color(lockHintLabel, lv_color_hex(0x71858F), 0);
+  lv_obj_set_style_text_color(lockHintLabel, lv_color_hex(0x7F849C), 0);
 
   lockMessageLabel = lv_label_create(lv_scr_act());
   lv_label_set_text(lockMessageLabel, "");
@@ -10582,7 +10589,7 @@ void buildLockScreen() {
   lv_obj_set_width(lockMessageLabel, SCREEN_W - 20);
   lv_obj_set_pos(lockMessageLabel, 10, 140);
   lv_obj_set_style_text_align(lockMessageLabel, LV_TEXT_ALIGN_CENTER, 0);
-  lv_obj_set_style_text_color(lockMessageLabel, lv_color_hex(0x71858F), 0);
+  lv_obj_set_style_text_color(lockMessageLabel, lv_color_hex(0x7F849C), 0);
 
   // Keypad: 10 columns x 4 rows, 44x28 px keys. 458 px total, centered.
   constexpr int KEY_W = 44;
@@ -10598,7 +10605,7 @@ void buildLockScreen() {
     lv_obj_set_size(button, KEY_W, KEY_H);
     lv_obj_set_pos(button, KEY_X + col * (KEY_W + KEY_GAP_X),
                    KEY_Y + row * (KEY_H + KEY_GAP_Y));
-    stylePanel(button, lv_color_hex(0x18272D), lv_color_hex(0x315360));
+    stylePanel(button, lv_color_hex(0x1E1E2E), lv_color_hex(0x45475A));
     lv_obj_add_event_cb(button, lockKeyClicked, LV_EVENT_CLICKED,
                         reinterpret_cast<void *>(static_cast<intptr_t>(i)));
     lv_obj_t *label = lv_label_create(button);
@@ -10781,8 +10788,8 @@ void loop() {
       if (radioLabel) {
         lv_obj_set_style_text_color(radioLabel,
             strncmp(keyboardStatus(), "Connected:", 10) == 0
-                ? lv_color_hex(0x8DE6B3)
-                : lv_color_hex(0x78C8F4), 0);
+                ? lv_color_hex(0x96A57E)
+                : lv_color_hex(0x89B4FA), 0);
       }
 #ifdef WIAW_BATTERY_SENSE
       setPowerLabelText();
@@ -10790,13 +10797,13 @@ void loop() {
     } else if (menuVisible && menuRadioLabel) {
       const String keyboard = keyboardStatus();
       lv_obj_set_style_text_color(menuRadioLabel,
-          keyboard.startsWith("Connected:") ? lv_color_hex(0x8DE6B3)
-                                            : lv_color_hex(0x78C8F4), 0);
+          keyboard.startsWith("Connected:") ? lv_color_hex(0x96A57E)
+                                            : lv_color_hex(0x89B4FA), 0);
     } else if (settingsRadioLabel) {
       labelSetTextIfChanged(settingsRadioLabel, keyboardShortStatus());
       lv_obj_set_style_text_color(settingsRadioLabel,
-          keyboardIsConnected() ? lv_color_hex(0x8DE6B3)
-                                : lv_color_hex(0xD4DFE5), 0);
+          keyboardIsConnected() ? lv_color_hex(0x96A57E)
+                                : lv_color_hex(0xBAC2DE), 0);
     } else if (settingsVisible) {
       // The Keyboard section's summary is the only live value on the list.
       // Selection moves no longer rebuild the screen, so refresh it here.
@@ -10813,8 +10820,8 @@ void loop() {
       const char *keyboard = keyboardStatus();
       labelSetTextIfChanged(pairingStatusLabel, keyboard);
       lv_obj_set_style_text_color(pairingStatusLabel,
-          strncmp(keyboard, "Connected:", 10) == 0 ? lv_color_hex(0x8DE6B3)
-                                                  : lv_color_hex(0xD4DFE5), 0);
+          strncmp(keyboard, "Connected:", 10) == 0 ? lv_color_hex(0x96A57E)
+                                                  : lv_color_hex(0xBAC2DE), 0);
     }
   }
   if (editorVisible && uiNeedsRender) {

@@ -47,7 +47,7 @@ Bluetooth keyboard (there is no on-screen keyboard), then press `Enter` or
 `Esc` to finish. The password must be 8–63 characters (WPA2). Both values are
 saved in NVS. Turn the toggle on (or press `Enter`) to start the WPA2 access
 point; the name and password fields then lock, and the address appears in bold
-soft green, e.g. `http://192.168.4.1`. Connect a phone or computer with the shown password, open
+soft sage, e.g. `http://192.168.4.1`. Connect a phone or computer with the shown password, open
 that address in a browser, and download or upload Markdown files. The page is a
 file-browser view in the device's palette: each row shows the document name,
 size, and SD modification time, with total count, total size, and card usage
@@ -75,7 +75,7 @@ In the editor the header is a low-profile breadcrumb. `~/` stands for the
 `WriterInAWell` root on the SD card; any subfolders appear with a folder icon,
 followed by the current filename. Unsaved documents (including a new
 `Untitled.md`) show their name in italics, in a reddish-pink color; a saved
-file shows the name in a pastel mint. The hamburger button on the left opens
+file shows the name in light moss. The hamburger button on the left opens
 the main menu without closing the buffer, the Bluetooth square between the
 power indicator and the gear opens the keyboard picker (BACK returns to the
 document), and the gear on the right opens Settings. Between the filename and
@@ -302,9 +302,9 @@ always returns to the main menu.
   lengths). Pressing a length key starts a fresh run immediately (when
   Numbers is on, the same digit is typed instead if it is the next expected
   character).
-- The word stream uses the 20 px Space Mono cut. The active word renders in
+- The word stream uses the 20 px Terminess cut. The active word renders in
   color bands: the correctly typed prefix bright,
-  mistakes red, the untyped tail light. Finished words turn mint when clean,
+  mistakes red, the untyped tail light. Finished words turn moss when clean,
   pink when anything went wrong; letters typed past a word's end appear as
   red extras, capped at eight.
 - The clock arms on your first keystroke. `Space` advances to the next word
@@ -417,19 +417,19 @@ first if you want the access point to go away.
 ## Fonts
 
 UI text uses bold **Elms Sans** (12/14/16 px); unsaved filenames use Elms Sans
-Bold Italic. The editor text uses the **Space Mono Nerd Font** at 10, 12, 14
+Bold Italic. The editor text uses the **Terminess Nerd Font** at 10, 12, 14
 (default) or 16 px, in two switchable variants: anti-aliased (smooth) and 1-bpp
 crisp — see the TEXT SMOOTH toggle in Settings. The size changes the line pitch
-and band count: 18, 14, 13 or 12 visible lines of 74, 64, 49 or 44 columns
-(69, 59, 46 or 41 while line numbers are on). The typing-practice word stream
-uses the smooth 20 px Space Mono cut (not part of the editor size ladder). UI
-icons are Space Mono
-Nerd Font glyphs: 14 px (toolbar buttons), 20 px (Bluetooth logo), 28 px
-(action-menu grid tiles), and 40 px (the menu's keyboard tile, sized so it
-matches its neighbors' height). See `assets/fonts/README.md`. The Markdown
+and band count: 18, 18, 15 or 13 visible lines of 89, 74, 64 or 56 columns
+(82, 69, 59 or 51 while line numbers are on). Terminess is a pixel font with
+native 12/14/16 px cuts; the 10 px cut is the dense option. The typing-practice
+word stream uses the smooth 20 px Terminess cut (not part of the editor size
+ladder). UI icons are Space Mono Nerd Font glyphs: 14 px (toolbar icon
+buttons), 20 px (Bluetooth logo), 28 px (action-menu grid tiles), and 40 px
+(the menu's keyboard tile, sized so it matches its neighbors' height). See `assets/fonts/README.md`. The Markdown
 editor colors syntax with a
-warm palette: headings orange, bold purple, italics peach, list bullets
-yellow, and inline code a soft orange-peach. A blinking block caret marks the
+Mocha palette: headings peach, bold mauve, italics pink, list bullets
+yellow, and inline code a warm cream. A blinking block caret marks the
 cursor and is sized to exactly one character cell: the solid phase is a very
 light blue block with the character reversed out of it, and the other phase is
 a 1 px box of the same cell, so the character under the caret stays readable

@@ -2,12 +2,13 @@
 set -eu
 
 # WriterInAWell fonts:
-#   Elms Sans Bold       -> UI text (labels, buttons, breadcrumb, titles)
-#   Elms Sans Bold Italic-> unsaved filenames in the breadcrumb
-#   Space Mono           -> editor text and the UI icons
+#   Elms Sans Bold        -> UI text (labels, buttons, breadcrumb, titles)
+#   Elms Sans Bold Italic -> unsaved filenames in the breadcrumb
+#   Terminess (Terminus)  -> editor text and every monospace text label
+#   Space Mono (Nerd Font)-> icon glyphs only
 #
-# The generated fonts are RLE-compressed, so include/lv_conf.h must define
-# LV_USE_FONT_COMPRESSED 1 (it does).
+# The generated fonts are RLE-compressed unless noted, so include/lv_conf.h
+# must define LV_USE_FONT_COMPRESSED 1 (it does).
 
 UI_RANGES="-r 0x20-0x7E -r 0xA0-0xFF -r 0x2000-0x206F -r 0x2190-0x21FF"
 # Nerd Font icon codepoints (Font Awesome set): F00B bars, F013 gear,
@@ -15,6 +16,10 @@ UI_RANGES="-r 0x20-0x7E -r 0xA0-0xFF -r 0x2000-0x206F -r 0x2190-0x21FF"
 # typing RETRY button), F030C keyboard (Material md-keyboard: solid, with
 # key rows and a spacebar), F1EB wifi, F293 bluetooth.
 ICON_RANGES="-r 0xF00B -r 0xF013 -r 0xF07B -r 0xF0C7 -r 0xF0C9 -r 0xF01E -r 0xF030C -r 0xF1EB -r 0xF293"
+# The breadcrumb path embeds ICON_FOLDER inside a text label, so the folder
+# glyph has to exist in the text font. Every other icon is rendered from a
+# Space Mono icon-only cut.
+TEXT_RANGES="$UI_RANGES -r 0xF07B"
 
 # Elms Sans Bold (UI)
 npx --yes lv_font_conv --size 12 --bpp 4 --format lvgl \
@@ -37,38 +42,45 @@ npx --yes lv_font_conv --size 14 --bpp 4 --format lvgl \
   --lv-fallback lv_font_montserrat_14 \
   --lv-font-name elms_bold_italic_14 -o src/fonts/elms_bold_italic_14.c
 
-# Space Mono (editor text, anti-aliased "smooth" variant). The 14 px cut is
-# the default; 10/12 are the smaller picks and 16 the larger one, all four
-# share the same glyph ranges so a document reads identically at any size.
-npx --yes lv_font_conv --size 14 --bpp 4 --format lvgl \
-  --font assets/fonts/SpaceMono-Regular.ttf $UI_RANGES $ICON_RANGES \
-  --lv-fallback lv_font_montserrat_14 \
-  --lv-font-name space_mono_14 -o src/fonts/space_mono_14.c
+# Terminess (Terminus Nerd Font Mono) editor cuts. Terminus ships native
+# bitmap strikes at 12/14/16/18/20/22/24/28/32 px; at 11/13/15 the strike
+# selection renders smaller, mismatched ink (13 px produced an 8 px-tall '0'
+# while 12 px produced a 12 px one), so the ladder stays on the native even
+# sizes. 10 px reuses the smallest available strike and is the dense option.
+# The 14 px cut is the default. Each size has a 4-bpp anti-aliased ("smooth")
+# cut and a 1-bpp uncompressed ("crisp") cut for the smoothing toggle.
+for size in 10 12 14 16; do
+  npx --yes lv_font_conv --size "$size" --bpp 4 --format lvgl \
+    --font assets/fonts/TerminessNerdFontMono-Regular.ttf $TEXT_RANGES \
+    --lv-fallback lv_font_montserrat_14 \
+    --lv-font-name "terminess_${size}" -o "src/fonts/terminess_${size}.c"
 
-npx --yes lv_font_conv --size 10 --bpp 4 --format lvgl \
-  --font assets/fonts/SpaceMono-Regular.ttf $UI_RANGES $ICON_RANGES \
-  --lv-fallback lv_font_montserrat_14 \
-  --lv-font-name space_mono_10 -o src/fonts/space_mono_10.c
+  npx --yes lv_font_conv --size "$size" --bpp 1 --no-compress --format lvgl \
+    --font assets/fonts/TerminessNerdFontMono-Regular.ttf $TEXT_RANGES \
+    --lv-fallback lv_font_montserrat_14 \
+    --lv-font-name "terminess_${size}_cr" -o "src/fonts/terminess_${size}_cr.c"
+done
 
-npx --yes lv_font_conv --size 12 --bpp 4 --format lvgl \
-  --font assets/fonts/SpaceMono-Regular.ttf $UI_RANGES $ICON_RANGES \
-  --lv-fallback lv_font_montserrat_14 \
-  --lv-font-name space_mono_12 -o src/fonts/space_mono_12.c
-
-npx --yes lv_font_conv --size 16 --bpp 4 --format lvgl \
-  --font assets/fonts/SpaceMono-Regular.ttf $UI_RANGES $ICON_RANGES \
-  --lv-fallback lv_font_montserrat_14 \
-  --lv-font-name space_mono_16 -o src/fonts/space_mono_16.c
-
-# Space Mono (larger cut for the top-bar icons, e.g. the bluetooth logo)
+# Terminess 20 px for the typing-practice word stream. Text only: the word
+# stream never carries icons.
 npx --yes lv_font_conv --size 20 --bpp 4 --format lvgl \
-  --font assets/fonts/SpaceMono-Regular.ttf $UI_RANGES $ICON_RANGES \
+  --font assets/fonts/TerminessNerdFontMono-Regular.ttf $UI_RANGES \
   --lv-fallback lv_font_montserrat_14 \
-  --lv-font-name space_mono_20 -o src/fonts/space_mono_20.c
+  --lv-font-name terminess_20 -o src/fonts/terminess_20.c
 
-# Space Mono (icon-only 28 px cut for the main-menu grid tiles). No
-# UI_RANGES: these glyphs are only ever rendered as icons, so the text
-# ranges would just burn flash.
+# Space Mono icon-only cuts. Text labels use Terminess; these four cuts exist
+# so the UI icons keep their original Nerd Font shapes and metrics.
+npx --yes lv_font_conv --size 14 --bpp 4 --format lvgl \
+  --font assets/fonts/SpaceMono-Regular.ttf $ICON_RANGES \
+  --lv-fallback lv_font_montserrat_14 \
+  --lv-font-name space_mono_14_icons -o src/fonts/space_mono_14_icons.c
+
+npx --yes lv_font_conv --size 20 --bpp 4 --format lvgl \
+  --font assets/fonts/SpaceMono-Regular.ttf $ICON_RANGES \
+  --lv-fallback lv_font_montserrat_14 \
+  --lv-font-name space_mono_20_icons -o src/fonts/space_mono_20_icons.c
+
+# Space Mono (icon-only 28 px cut for the main-menu grid tiles).
 npx --yes lv_font_conv --size 28 --bpp 4 --format lvgl \
   --font assets/fonts/SpaceMono-Regular.ttf $ICON_RANGES \
   --lv-fallback lv_font_montserrat_14 \
@@ -82,26 +94,3 @@ npx --yes lv_font_conv --size 40 --bpp 4 --format lvgl \
   --font assets/fonts/SpaceMono-Regular.ttf $ICON_RANGES \
   --lv-fallback lv_font_montserrat_14 \
   --lv-font-name space_mono_40 -o src/fonts/space_mono_40.c
-
-# Space Mono (editor text, 1-bpp "crisp" variant, no anti-aliasing).
-# Thin stems render fully black instead of faint gray. Every size needs its
-# own cut so the smoothing toggle works across the whole size ladder.
-npx --yes lv_font_conv --size 14 --bpp 1 --no-compress --format lvgl \
-  --font assets/fonts/SpaceMono-Regular.ttf $UI_RANGES $ICON_RANGES \
-  --lv-fallback lv_font_montserrat_14 \
-  --lv-font-name space_mono_14_cr -o src/fonts/space_mono_14_cr.c
-
-npx --yes lv_font_conv --size 10 --bpp 1 --no-compress --format lvgl \
-  --font assets/fonts/SpaceMono-Regular.ttf $UI_RANGES $ICON_RANGES \
-  --lv-fallback lv_font_montserrat_14 \
-  --lv-font-name space_mono_10_cr -o src/fonts/space_mono_10_cr.c
-
-npx --yes lv_font_conv --size 12 --bpp 1 --no-compress --format lvgl \
-  --font assets/fonts/SpaceMono-Regular.ttf $UI_RANGES $ICON_RANGES \
-  --lv-fallback lv_font_montserrat_14 \
-  --lv-font-name space_mono_12_cr -o src/fonts/space_mono_12_cr.c
-
-npx --yes lv_font_conv --size 16 --bpp 1 --no-compress --format lvgl \
-  --font assets/fonts/SpaceMono-Regular.ttf $UI_RANGES $ICON_RANGES \
-  --lv-fallback lv_font_montserrat_14 \
-  --lv-font-name space_mono_16_cr -o src/fonts/space_mono_16_cr.c

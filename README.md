@@ -30,7 +30,7 @@ backed up in `backups/wt32-sc01-plus-original-flash.bin`; verify its hash in
 
 ## First implementation
 
-- Dark, compact UI with green/blue accents and keyboard-first navigation.
+- Dark, compact UI with sage/blue accents and keyboard-first navigation.
   Boots to a four-tile main menu (Text Editor, Typing Practice, Share Over
   Wi-Fi, Settings) with no save tile and no status line; `:w` saves. A
   low-profile breadcrumb header (hamburger menu on the left, Bluetooth
@@ -46,7 +46,7 @@ backed up in `backups/wt32-sc01-plus-original-flash.bin`; verify its hash in
   the setting off for sideways scrolling that keeps the caret on screen.
 - Adjustable editor text size from the header's A−/A+ pair, `+`/`-` in Normal
   mode, `:font 16`, or the Text size row in Settings → Editor: 10/12/14/16 px,
-  with the line pitch and visible rows following (18 down to 12 rows); the
+  with the line pitch and visible rows following (18 down to 13 rows); the
   choice is saved and applies to the rendered preview too.
 - LazyVim-style editor start screen (`n` new, `f` filtered find, `r` recent
   files, `q` menu), with recent documents persisted in NVS; `q`/`:q` closes a
@@ -67,7 +67,7 @@ backed up in `backups/wt32-sc01-plus-original-flash.bin`; verify its hash in
   4×10 keypad; setting, changing or removing it requires the current password.
   Only a salted hash is stored — it is a UI gate, not disk encryption.
 - Syntax highlighting for Markdown, HTML, CSS, Python, C/C++, JavaScript,
-  JSON, shell, YAML and plain text in one warm palette, with balanced inline
+  JSON, shell, YAML and plain text in one Mocha palette, with balanced inline
   spans that never vanish; Markdown gets per-level heading colours, links,
   task boxes, strikethrough and tables. Insert mode indents on Enter, inserts
   2-space tabs, and auto-pairs brackets and quotes. Opt-in Markdown list
@@ -113,13 +113,13 @@ backed up in `backups/wt32-sc01-plus-original-flash.bin`; verify its hash in
 The code uses the board’s microSD card as the canonical document store.
 Documents are plain text (Markdown by default) and can also be transferred through the temporary
 Wi-Fi access point (`WriterInAWell` by default, password shown on the Wi-Fi
-screen; the live address appears there in bold soft green) at
+screen; the live address appears there in bold soft sage) at
 `http://192.168.4.1/`. The clock is not yet implemented; the board has no RTC,
 and Wi-Fi remains off unless sharing is enabled. UI text uses bold Elms Sans;
-the editor text and icons use the Space Mono Nerd Font (see
+the editor text uses the Terminess Nerd Font and icons use Space Mono (see
 `assets/fonts/README.md`). The header breadcrumb shows `~/` for the SD root,
 folder icons for subfolders, and the current filename in reddish-pink italics
-when unsaved or pastel mint when saved.
+when unsaved or light moss when saved.
 
 See [`docs/USAGE.md`](docs/USAGE.md) for the current keymap, file-transfer flow,
 and power behavior.

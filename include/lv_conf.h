@@ -57,17 +57,19 @@
   extern const lv_font_t elms_bold_14; \
   extern const lv_font_t elms_bold_16; \
   extern const lv_font_t elms_bold_italic_14; \
-  extern const lv_font_t space_mono_14; \
-  extern const lv_font_t space_mono_20; \
+  extern const lv_font_t terminess_10; \
+  extern const lv_font_t terminess_12; \
+  extern const lv_font_t terminess_14; \
+  extern const lv_font_t terminess_16; \
+  extern const lv_font_t terminess_10_cr; \
+  extern const lv_font_t terminess_12_cr; \
+  extern const lv_font_t terminess_14_cr; \
+  extern const lv_font_t terminess_16_cr; \
+  extern const lv_font_t terminess_20; \
+  extern const lv_font_t space_mono_14_icons; \
+  extern const lv_font_t space_mono_20_icons; \
   extern const lv_font_t space_mono_28; \
-  extern const lv_font_t space_mono_40; \
-  extern const lv_font_t space_mono_14_cr; \
-  extern const lv_font_t space_mono_10; \
-  extern const lv_font_t space_mono_10_cr; \
-  extern const lv_font_t space_mono_12; \
-  extern const lv_font_t space_mono_12_cr; \
-  extern const lv_font_t space_mono_16; \
-  extern const lv_font_t space_mono_16_cr;
+  extern const lv_font_t space_mono_40;
 #define LV_FONT_DEFAULT &elms_bold_12
 
 #endif
