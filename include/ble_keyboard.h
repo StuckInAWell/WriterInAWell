@@ -20,6 +20,13 @@ enum KeyKind : uint8_t {
   KEY_PAGE_DOWN,
   KEY_CTRL_S,
   KEY_CTRL_O,
+  KEY_CTRL_R,
+  KEY_CTRL_Z,
+  KEY_CTRL_ENTER,
+  KEY_SHIFT_TAB,
+  // Appended so the existing numeric values never move; the value is not
+  // persisted, but keeping them stable avoids surprising any log decoder.
+  KEY_CTRL_L,
 };
 
 struct KeyEvent {
@@ -27,7 +34,10 @@ struct KeyEvent {
   char text;
 };
 
-void keyboardBegin();
+// preferredAddress: a previously connected peer address to auto-connect to
+// once during this boot scan (nullptr or "" disables it).
+void keyboardBegin(const char *preferredAddress = nullptr);
+const char *keyboardConnectedAddress();
 bool keyboardNext(KeyEvent &event);
 const char *keyboardStatus();
 size_t keyboardCandidateCount();

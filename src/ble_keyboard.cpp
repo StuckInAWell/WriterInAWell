@@ -2,6 +2,7 @@
 
 #include <NimBLEDevice.h>
 #include <new>
+#include <strings.h>
 #include <freertos/FreeRTOS.h>
 #include <freertos/queue.h>
 
@@ -26,6 +27,11 @@ size_t candidateCount = 0;
 int pendingConnectIndex = -1;
 portMUX_TYPE candidateMux = portMUX_INITIALIZER_UNLOCKED;
 char selectedKeyboardName[32] = {};
+char selectedKeyboardAddress[20] = {};
+// Boot auto-reconnect: one attempt at the remembered address, never repeated
+// after a manual disconnect or rescan.
+char preferredAddress[20] = {};
+bool autoConnectAtBoot = false;
 uint8_t previousKeys[6] = {};
 uint8_t heldModifiers = 0;
 bool pressedKeys[256] = {};
@@ -95,6 +101,26 @@ void emitUsage(uint8_t usage, uint8_t modifiers) {
   }
   if (ctrl && usage == 0x12) {  // Ctrl-O
     enqueue(KEY_CTRL_O);
+    return;
+  }
+  if (ctrl && usage == 0x15) {  // Ctrl-R redo
+    enqueue(KEY_CTRL_R);
+    return;
+  }
+  if (ctrl && usage == 0x1D) {  // Ctrl-Z zen
+    enqueue(KEY_CTRL_Z);
+    return;
+  }
+  if (ctrl && usage == 0x0F) {  // Ctrl-L lock
+    enqueue(KEY_CTRL_L);
+    return;
+  }
+  if (ctrl && usage == HID_ENTER) {  // Ctrl-Enter toggles a task box
+    enqueue(KEY_CTRL_ENTER);
+    return;
+  }
+  if (shift && usage == HID_TAB) {  // Shift-Tab outdents a list item
+    enqueue(KEY_SHIFT_TAB);
     return;
   }
   switch (usage) {
@@ -211,12 +237,28 @@ class ScanCallbacks final : public NimBLEScanCallbacks {
                 sizeof(candidates[slot].name));
       }
     }
+    // Boot reconnect: queue the remembered peer for the main task to connect.
+    bool queued = false;
+    if (autoConnectAtBoot && preferredAddress[0] && slot < candidateCount &&
+        candidates[slot].device &&
+        strcasecmp(candidates[slot].address, preferredAddress) == 0) {
+      autoConnectAtBoot = false;
+      if (pendingConnectIndex < 0) {
+        pendingConnectIndex = static_cast<int>(slot);
+        queued = true;
+      }
+    }
     const size_t found = candidateCount;
     portEXIT_CRITICAL(&candidateMux);
     delete copy;
 
-    snprintf(connectionLabel, sizeof(connectionLabel), "BLE scan: %u found",
-             unsigned(found));
+    if (queued) {
+      snprintf(connectionLabel, sizeof(connectionLabel), "Connecting: %.28s",
+               name.c_str());
+    } else {
+      snprintf(connectionLabel, sizeof(connectionLabel), "BLE scan: %u found",
+               unsigned(found));
+    }
   }
 };
 
@@ -288,6 +330,9 @@ void connectSelected(NimBLEAdvertisedDevice *device) {
   }
   connected = true;
   scanning = false;
+  strlcpy(selectedKeyboardAddress,
+          activeClient->getPeerAddress().toString().c_str(),
+          sizeof(selectedKeyboardAddress));
   snprintf(connectionLabel, sizeof(connectionLabel), "Connected: %.30s",
            selectedKeyboardName);
 }
@@ -302,13 +347,21 @@ void processPendingConnection() {
     candidates[index].device = nullptr;
     strlcpy(selectedKeyboardName, candidates[index].name,
             sizeof(selectedKeyboardName));
+    strlcpy(selectedKeyboardAddress, candidates[index].address,
+            sizeof(selectedKeyboardAddress));
   }
   portEXIT_CRITICAL(&candidateMux);
   if (device) connectSelected(device);
 }
 } // namespace
 
-void keyboardBegin() {
+void keyboardBegin(const char *preferred) {
+  preferredAddress[0] = '\0';
+  autoConnectAtBoot = false;
+  if (preferred && preferred[0]) {
+    strlcpy(preferredAddress, preferred, sizeof(preferredAddress));
+    autoConnectAtBoot = preferredAddress[0] != '\0';
+  }
   eventQueue = xQueueCreate(REPORT_QUEUE_LENGTH, sizeof(KeyEvent));
   NimBLEDevice::init("WriterInAWell");
   NimBLEDevice::setPower(ESP_PWR_LVL_P3);
@@ -321,7 +374,9 @@ void keyboardBegin() {
   scan->setWindow(80);
   scan->start(0, false);
   scanning = true;
-  strlcpy(connectionLabel, "BLE scan: searching", sizeof(connectionLabel));
+  strlcpy(connectionLabel,
+          autoConnectAtBoot ? "BLE: reconnecting" : "BLE scan: searching",
+          sizeof(connectionLabel));
 }
 
 bool keyboardNext(KeyEvent &event) {
@@ -366,6 +421,7 @@ void keyboardRescan() {
             sizeof(connectionLabel));
     return;
   }
+  autoConnectAtBoot = false;
   NimBLEScan *scan = NimBLEDevice::getScan();
   scan->stop();
   NimBLEAdvertisedDevice *garbage[MAX_KEYBOARDS] = {};
@@ -388,5 +444,10 @@ bool keyboardIsConnected() {
 }
 
 void keyboardDisconnect() {
+  autoConnectAtBoot = false;
   if (activeClient && connected) activeClient->disconnect();
+}
+
+const char *keyboardConnectedAddress() {
+  return selectedKeyboardAddress;
 }

@@ -1,7 +1,7 @@
 /*******************************************************************************
  * Size: 14 px
  * Bpp: 1
- * Opts: --size 14 --bpp 1 --no-compress --format lvgl --font assets/fonts/SpaceMono-Regular.ttf -r 0x20-0x7E -r 0xA0-0xFF -r 0x2000-0x206F -r 0x2190-0x21FF -r 0xF00B -r 0xF013 -r 0xF07B -r 0xF0C9 -r 0xF293 --lv-fallback lv_font_montserrat_14 --lv-font-name space_mono_14_cr -o src/fonts/space_mono_14_cr.c
+ * Opts: --size 14 --bpp 1 --no-compress --format lvgl --font assets/fonts/SpaceMono-Regular.ttf -r 0x20-0x7E -r 0xA0-0xFF -r 0x2000-0x206F -r 0x2190-0x21FF -r 0xF00B -r 0xF013 -r 0xF07B -r 0xF0C7 -r 0xF0C9 -r 0xF01E -r 0xF030C -r 0xF1EB -r 0xF293 --lv-fallback lv_font_montserrat_14 --lv-font-name space_mono_14_cr -o src/fonts/space_mono_14_cr.c
  ******************************************************************************/
 
 #ifdef LV_LVGL_H_INCLUDE_SIMPLE
@@ -774,15 +774,29 @@ static LV_ATTRIBUTE_LARGE_CONST const uint8_t glyph_bitmap[] = {
     0x1c, 0xe, 0x3f, 0xfc, 0x76, 0x37, 0x1f, 0xfe,
     0xba, 0x1c, 0x0,
 
+    /* U+F01E "" */
+    0x0, 0x3d, 0x43, 0x87, 0x80, 0x80, 0x80, 0x46,
+    0x3c,
+
     /* U+F07B "" */
     0xf0, 0x7f, 0xff, 0xff, 0xff, 0xff, 0xff, 0xfe,
+
+    /* U+F0C7 "" */
+    0xfe, 0x63, 0xb1, 0x77, 0x98, 0xc, 0xc6, 0x63,
+    0x1, 0xff, 0x80,
 
     /* U+F0C9 "" */
     0xff, 0x80, 0x0, 0x1f, 0xf0, 0x0, 0x3, 0xfe,
 
+    /* U+F1EB "" */
+    0x3e, 0x60, 0xcf, 0x4, 0x40, 0x80,
+
     /* U+F293 "" */
     0x3e, 0x3b, 0xbc, 0xda, 0xae, 0x37, 0xbf, 0x8f,
-    0xaa, 0xf3, 0x3b, 0x8f, 0x80
+    0xaa, 0xf3, 0x3b, 0x8f, 0x80,
+
+    /* U+F030C "󰌌" */
+    0xff, 0xbd, 0xff, 0xff, 0xe3, 0xff
 };
 
 
@@ -1012,9 +1026,13 @@ static const lv_font_fmt_txt_glyph_dsc_t glyph_dsc[] = {
     {.bitmap_index = 1534, .adv_w = 137, .box_w = 6, .box_h = 6, .ofs_x = 1, .ofs_y = 2},
     {.bitmap_index = 1539, .adv_w = 137, .box_w = 9, .box_h = 7, .ofs_x = 0, .ofs_y = 2},
     {.bitmap_index = 1547, .adv_w = 137, .box_w = 9, .box_h = 9, .ofs_x = 0, .ofs_y = 1},
-    {.bitmap_index = 1558, .adv_w = 137, .box_w = 9, .box_h = 7, .ofs_x = 0, .ofs_y = 2},
-    {.bitmap_index = 1566, .adv_w = 137, .box_w = 9, .box_h = 7, .ofs_x = 0, .ofs_y = 2},
-    {.bitmap_index = 1574, .adv_w = 137, .box_w = 9, .box_h = 11, .ofs_x = 0, .ofs_y = 0}
+    {.bitmap_index = 1558, .adv_w = 137, .box_w = 8, .box_h = 9, .ofs_x = 0, .ofs_y = 1},
+    {.bitmap_index = 1567, .adv_w = 137, .box_w = 9, .box_h = 7, .ofs_x = 0, .ofs_y = 2},
+    {.bitmap_index = 1575, .adv_w = 137, .box_w = 9, .box_h = 9, .ofs_x = 0, .ofs_y = 1},
+    {.bitmap_index = 1586, .adv_w = 137, .box_w = 9, .box_h = 7, .ofs_x = 0, .ofs_y = 2},
+    {.bitmap_index = 1594, .adv_w = 137, .box_w = 9, .box_h = 5, .ofs_x = 0, .ofs_y = 3},
+    {.bitmap_index = 1600, .adv_w = 137, .box_w = 9, .box_h = 11, .ofs_x = 0, .ofs_y = 0},
+    {.bitmap_index = 1613, .adv_w = 137, .box_w = 8, .box_h = 6, .ofs_x = 0, .ofs_y = 2}
 };
 
 /*---------------------
@@ -1025,8 +1043,8 @@ static const uint16_t unicode_list_3[] = {
     0x0, 0x1, 0x5, 0x6, 0x7, 0x9, 0xa, 0xb,
     0xd, 0xe, 0xf, 0x13, 0x1d, 0x1f, 0x20, 0x26,
     0x27, 0x31, 0x17d, 0x17e, 0x17f, 0x180, 0x181, 0x182,
-    0x183, 0x184, 0x185, 0x186, 0xcff8, 0xd000, 0xd068, 0xd0b6,
-    0xd280
+    0x183, 0x184, 0x185, 0x186, 0xcff8, 0xd000, 0xd00b, 0xd068,
+    0xd0b4, 0xd0b6, 0xd1d8, 0xd280
 };
 
 /*Collect the unicode lists and glyph_id offsets*/
@@ -1046,7 +1064,11 @@ static const lv_font_fmt_txt_cmap_t cmaps[] =
     },
     {
         .range_start = 8211, .range_length = 53889, .glyph_id_start = 191,
-        .unicode_list = unicode_list_3, .glyph_id_ofs_list = NULL, .list_length = 33, .type = LV_FONT_FMT_TXT_CMAP_SPARSE_TINY
+        .unicode_list = unicode_list_3, .glyph_id_ofs_list = NULL, .list_length = 36, .type = LV_FONT_FMT_TXT_CMAP_SPARSE_TINY
+    },
+    {
+        .range_start = 983820, .range_length = 1, .glyph_id_start = 227,
+        .unicode_list = NULL, .glyph_id_ofs_list = NULL, .list_length = 0, .type = LV_FONT_FMT_TXT_CMAP_FORMAT0_TINY
     }
 };
 
@@ -1071,7 +1093,7 @@ static lv_font_fmt_txt_dsc_t font_dsc = {
     .cmaps = cmaps,
     .kern_dsc = NULL,
     .kern_scale = 0,
-    .cmap_num = 4,
+    .cmap_num = 5,
     .bpp = 1,
     .kern_classes = 0,
     .bitmap_format = 0,
